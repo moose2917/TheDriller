@@ -35,6 +35,12 @@ for (let c = 0; c < brickColumnCount; c++) {
     }
 }
 
+// 硬幣屬性
+let coins = [];
+const coinRadius = 7;
+const coinDropChance = 0.5; // 50% 的機率掉落硬幣
+let collectedCoins = 0;
+
 // 遊戲狀態
 let gameStarted = false;
 let score = 0;
@@ -46,6 +52,8 @@ const ballImage = new Image();
 ballImage.src = 'drill.png'; // 替換為電鑽的圖像
 const brickImage = new Image();
 brickImage.src = 'brick.png'; // 替換為磚塊的圖像
+const coinImage = new Image();
+coinImage.src = 'coin.png'; // 替換為硬幣的圖像
 const backgroundImage = new Image();
 backgroundImage.src = 'background.png'; // 新的背景圖像
 
@@ -59,9 +67,13 @@ function drawRotatedImage(image, x, y, width, height, angle) {
 }
 
 // 音效
-const brickHitSound = new Audio('brick-hit.mp3'); // 磚塊音效
-const gameOverSound = new Audio('game-over.mp3'); // 遊戲結束音效
-const gameWinSound = new Audio('game-win.mp3'); // 遊戲勝利音效
+let brickHitSound, gameOverSound, gameWinSound, coinCollectSound;
+function loadSounds() {
+    brickHitSound = new Audio('brick-hit.mp3'); // 磚塊音效
+    gameOverSound = new Audio('game-over.mp3'); // 遊戲結束音效
+    gameWinSound = new Audio('game-win.mp3'); // 遊戲勝利音效
+    coinCollectSound = new Audio('coin-collect.mp3'); // 收集硬幣音效
+}
 
 // 鍵盤控制
 let rightPressed = false;
@@ -90,6 +102,7 @@ function keyUpHandler(e) {
 
 function startGameHandler(e) {
     if (!gameStarted && (e.key === " " || e.type === "touchstart")) {
+        loadSounds(); // 在首次交互後加載音效以便在手機上播放
         gameStarted = true;
         timerInterval = setInterval(function () {
             timeElapsed++;
@@ -146,6 +159,35 @@ function drawBall() {
     drawRotatedImage(ballImage, x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2, Math.PI / 2);  // 旋轉90度
 }
 
+// 繪製硬幣
+function drawCoins() {
+    for (let i = 0; i < coins.length; i++) {
+        if (coins[i].active) {
+            ctx.drawImage(coinImage, coins[i].x - coinRadius, coins[i].y - coinRadius, coinRadius * 2, coinRadius * 2);
+        }
+    }
+}
+
+// 更新硬幣位置
+function updateCoins() {
+    for (let i = 0; i < coins.length; i++) {
+        if (coins[i].active) {
+            coins[i].y += 2; // 硬幣下落速度
+            // 檢查是否接住硬幣
+            if (coins[i].y + coinRadius > canvas.height - paddleHeight &&
+                coins[i].x > paddleX && coins[i].x < paddleX + paddleWidth) {
+                coins[i].active = false;
+                collectedCoins += 1; // 更新接住的硬幣數量
+                coinCollectSound.play();
+            }
+            // 檢查是否超出畫面
+            if (coins[i].y > canvas.height) {
+                coins[i].active = false;
+            }
+        }
+    }
+}
+
 // 磚塊排列
 function drawBricks() {
     for (let r = 0; r < brickRowCount; r++) {
@@ -176,6 +218,15 @@ function collisionDetection() {
                     brickHitSound.play();
                     score += 10;
                     drawScoreAndTime(); // 更新分數顯示
+
+                    // 50% 機率掉落硬幣
+                    if (Math.random() < coinDropChance) {
+                        coins.push({
+                            x: b.x + brickWidth / 2,
+                            y: b.y,
+                            active: true
+                        });
+                    }
                 }
             }
         }
@@ -198,8 +249,8 @@ function drawScoreAndTime() {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "center";
-    ctx.fillText("分數: " + score, canvas.width / 2 - 60, 30); // 分數顯示在頂部靠左
-    ctx.fillText("時間: " + timeElapsed + "秒", canvas.width / 2 + 60, 30); // 時間顯示在頂部靠右
+    ctx.fillText("硬幣: " + collectedCoins, canvas.width / 4, 30); // 顯示收集到的硬幣數量
+    ctx.fillText("時間: " + timeElapsed + "秒", (canvas.width / 4) * 3, 30); // 時間顯示在頂部靠右
 }
 
 // 顯示訊息並控制遊戲暫停
@@ -223,8 +274,11 @@ function draw() {
     drawBackground();  // 繪製背景
     drawBricks();
     drawBall();
+    drawCoins();  // 繪製硬幣
     drawPaddle();
-    drawScoreAndTime();  // 每一幀都確保分數和時間被正確顯示
+    drawScoreAndTime();  // 每一幀都確保硬幣數量和時間被正確顯示
+
+    updateCoins();  // 更新硬幣位置
 
     if (collisionDetection()) {
         return; // 停止繪製以暫停遊戲
