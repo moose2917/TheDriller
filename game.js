@@ -40,7 +40,7 @@ for (let c = 0; c < brickColumnCount; c++) {
 // 硬幣屬性
 let coins = [];
 const coinRadius = 7;
-const coinDropChance = 0.5; // 50% 的機率掉落硬幣
+const coinDropChance = 1.0; // 100% 的機率掉落硬幣
 let collectedCoins = 0;
 
 // 遊戲狀態
@@ -221,14 +221,12 @@ function collisionDetection() {
                     score += 10;
                     drawScoreAndTime(); // 更新分數顯示
 
-                    // 50% 機率掉落硬幣
-                    if (Math.random() < coinDropChance) {
-                        coins.push({
-                            x: b.x + brickWidth / 2,
-                            y: b.y,
-                            active: true
-                        });
-                    }
+                    // 100% 機率掉落硬幣
+                    coins.push({
+                        x: b.x + brickWidth / 2,
+                        y: b.y,
+                        active: true
+                    });
                 }
             }
         }
