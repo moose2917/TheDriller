@@ -26,7 +26,7 @@ const brickColumnCount = 5;
 const brickWidth = (canvas.width - 2 * 20) / brickColumnCount - 10; // 平衡居中放置磚塊
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 80;
+const brickOffsetTop = 100;  // 調整磚塊距離頂部的位置，以留出天花板的空間
 const brickOffsetLeft = 20; // 增加一點左右邊距
 
 const bricks = [];
@@ -39,8 +39,8 @@ for (let c = 0; c < brickColumnCount; c++) {
 
 // 硬幣屬性
 let coins = [];
-const coinRadius = 7;
-const coinDropChance = 1.0; // 100% 的機率掉落硬幣
+const coinRadius = 7 * 2.5; // 硬幣大小增加至250%
+const coinDropChance = 0.5; // 50% 的機率掉落硬幣
 let collectedCoins = 0;
 
 // 遊戲狀態
@@ -221,12 +221,14 @@ function collisionDetection() {
                     score += 10;
                     drawScoreAndTime(); // 更新分數顯示
 
-                    // 100% 機率掉落硬幣
-                    coins.push({
-                        x: b.x + brickWidth / 2,
-                        y: b.y,
-                        active: true
-                    });
+                    // 50% 機率掉落硬幣
+                    if (Math.random() < coinDropChance) {
+                        coins.push({
+                            x: b.x + brickWidth / 2,
+                            y: b.y,
+                            active: true
+                        });
+                    }
                 }
             }
         }
@@ -245,7 +247,7 @@ function collisionDetection() {
 
 // 繪製分數和時間
 function drawScoreAndTime() {
-    // 绘制黑底背景
+    // 绘制天花板区域
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, 40);
 
