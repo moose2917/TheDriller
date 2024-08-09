@@ -19,12 +19,12 @@ let dx = 2;
 let dy = -2;
 
 // 磚塊屬性
-const brickRowCount = 4;  // 增加到4行
+const brickRowCount = 4;  // 4行
 const brickColumnCount = 5;
 const brickWidth = (canvas.width - 2 * 20) / brickColumnCount - 10; // 平衡居中放置磚塊
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 50;
+const brickOffsetTop = 80;
 const brickOffsetLeft = 20; // 增加一點左右邊距
 
 const bricks = [];
@@ -46,6 +46,8 @@ const ballImage = new Image();
 ballImage.src = 'drill.png'; // 替換為電鑽的圖像
 const brickImage = new Image();
 brickImage.src = 'brick.png'; // 替換為磚塊的圖像
+const backgroundImage = new Image();
+backgroundImage.src = 'background.png'; // 新的背景圖像
 
 // 旋轉圖片 (順時針轉 90 度)
 function drawRotatedImage(image, x, y, width, height, angle) {
@@ -74,7 +76,7 @@ function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
         rightPressed = true;
     } else if (e.key == "Left" || e.key == "ArrowLeft") {
-        leftPressed = false;
+        leftPressed = true; // 修正此行，使球拍可以往左移動
     }
 }
 
@@ -125,6 +127,11 @@ function touchEndHandler(e) {
     isTouching = false;
 }
 
+// 繪製背景
+function drawBackground() {
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+}
+
 // 繪製球拍
 function drawPaddle() {
     ctx.beginPath();
@@ -139,10 +146,11 @@ function drawBall() {
     drawRotatedImage(ballImage, x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2, Math.PI / 2);  // 旋轉90度
 }
 
-// 繪製磚塊
+// 磚塊排列
 function drawBricks() {
-    for (let c = 0; c < brickColumnCount; c++) {
-        for (let r = 0; r < brickRowCount; r++) {
+    for (let r = 0; r < brickRowCount; r++) {
+        for (let c = 0; c < brickColumnCount; c++) {
+            if (r % 2 == 1 && c == brickColumnCount - 1) continue; // 偶數行跳過最後一個磚塊
             if (bricks[c][r].status == 1) {
                 const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft + (r % 2) * (brickWidth / 2); // 交錯排列
                 const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
@@ -186,11 +194,12 @@ function collisionDetection() {
 
 // 繪製分數和時間
 function drawScoreAndTime() {
-    ctx.clearRect(0, 0, canvas.width, 40); // 清除之前繪製的分數和時間
+    ctx.clearRect(0, 0, canvas.width, brickOffsetTop); // 清除之前繪製的分數和時間
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
-    ctx.fillText("分數: " + score, 8, 20);
-    ctx.fillText("時間: " + timeElapsed + "秒", canvas.width - 100, 20);
+    ctx.textAlign = "center";
+    ctx.fillText("分數: " + score, canvas.width / 2 - 60, 40); // 分數顯示在頂部靠左
+    ctx.fillText("時間: " + timeElapsed + "秒", canvas.width / 2 + 60, 40); // 時間顯示在頂部靠右
 }
 
 // 顯示訊息並控制遊戲暫停
@@ -211,6 +220,7 @@ function showMessage(message, isWin) {
 // 主繪製函數
 function draw() {
     ctx.clearRect(0, 40, canvas.width, canvas.height - 40);
+    drawBackground();  // 繪製背景
     drawBricks();
     drawBall();
     drawPaddle();
