@@ -93,7 +93,7 @@ function startGameHandler(e) {
         gameStarted = true;
         timerInterval = setInterval(function () {
             timeElapsed++;
-            drawScoreAndTime();
+            drawScoreAndTime();  // 確保每秒更新時間
         }, 1000);
         document.removeEventListener("keydown", startGameHandler);
         canvas.removeEventListener("touchstart", startGameHandler);
@@ -175,7 +175,7 @@ function collisionDetection() {
                     b.status = 0;
                     brickHitSound.play();
                     score += 10;
-                    drawScoreAndTime();
+                    drawScoreAndTime(); // 更新分數顯示
                 }
             }
         }
@@ -194,12 +194,12 @@ function collisionDetection() {
 
 // 繪製分數和時間
 function drawScoreAndTime() {
-    ctx.clearRect(0, 0, canvas.width, brickOffsetTop); // 清除之前繪製的分數和時間
+    ctx.clearRect(0, 0, canvas.width, 40); // 清除之前繪製的分數和時間
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "center";
-    ctx.fillText("分數: " + score, canvas.width / 2 - 60, 40); // 分數顯示在頂部靠左
-    ctx.fillText("時間: " + timeElapsed + "秒", canvas.width / 2 + 60, 40); // 時間顯示在頂部靠右
+    ctx.fillText("分數: " + score, canvas.width / 2 - 60, 30); // 分數顯示在頂部靠左
+    ctx.fillText("時間: " + timeElapsed + "秒", canvas.width / 2 + 60, 30); // 時間顯示在頂部靠右
 }
 
 // 顯示訊息並控制遊戲暫停
@@ -224,6 +224,7 @@ function draw() {
     drawBricks();
     drawBall();
     drawPaddle();
+    drawScoreAndTime();  // 每一幀都確保分數和時間被正確顯示
 
     if (collisionDetection()) {
         return; // 停止繪製以暫停遊戲
