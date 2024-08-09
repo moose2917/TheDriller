@@ -3,8 +3,8 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // 調整遊戲畫布的大小以適應不同裝置
-canvas.width = Math.min(window.innerWidth - 20, 480);
-canvas.height = Math.min(window.innerHeight - 20, 320);
+canvas.width = Math.min(window.innerWidth - 20, 320);  // 調整為窄但長型
+canvas.height = Math.min(window.innerHeight - 20, 480);  // 調整為窄但長型
 
 // 球拍屬性
 const paddleHeight = 10;
@@ -19,13 +19,13 @@ let dx = 2;
 let dy = -2;
 
 // 磚塊屬性
-const brickRowCount = 3;
+const brickRowCount = 4;  // 增加到4行
 const brickColumnCount = 5;
-const brickWidth = (canvas.width - 2 * 30) / brickColumnCount - 10; // 平衡居中放置磚塊
+const brickWidth = (canvas.width - 2 * 20) / brickColumnCount - 10; // 平衡居中放置磚塊
 const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 50;
-const brickOffsetLeft = 30;
+const brickOffsetLeft = 20; // 增加一點左右邊距
 
 const bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
@@ -47,6 +47,15 @@ ballImage.src = 'drill.png'; // 替換為電鑽的圖像
 const brickImage = new Image();
 brickImage.src = 'brick.png'; // 替換為磚塊的圖像
 
+// 旋轉圖片 (順時針轉 90 度)
+function drawRotatedImage(image, x, y, width, height, angle) {
+    ctx.save();
+    ctx.translate(x + width / 2, y + height / 2);
+    ctx.rotate(angle);
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    ctx.restore();
+}
+
 // 音效
 const brickHitSound = new Audio('brick-hit.mp3'); // 磚塊音效
 const gameOverSound = new Audio('game-over.mp3'); // 遊戲結束音效
@@ -65,7 +74,7 @@ function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
         rightPressed = true;
     } else if (e.key == "Left" || e.key == "ArrowLeft") {
-        leftPressed = true;
+        leftPressed = false;
     }
 }
 
@@ -127,7 +136,7 @@ function drawPaddle() {
 
 // 繪製小球
 function drawBall() {
-    ctx.drawImage(ballImage, x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
+    drawRotatedImage(ballImage, x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2, Math.PI / 2);  // 旋轉90度
 }
 
 // 繪製磚塊
@@ -135,7 +144,7 @@ function drawBricks() {
     for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
             if (bricks[c][r].status == 1) {
-                const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft + (r % 2) * (brickWidth / 2); // 交錯排列
                 const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
