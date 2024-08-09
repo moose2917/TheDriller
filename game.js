@@ -29,13 +29,18 @@ const brickPadding = 10;
 const brickOffsetTop = 50;  // 調整磚塊距離頂部的位置，以避免与天花板重叠
 const brickOffsetLeft = 20; // 增加一點左右邊距
 
-const bricks = [];
-for (let c = 0; c < brickColumnCount; c++) {
-    bricks[c] = [];
-    for (let r = 0; r < brickRowCount; r++) {
-        bricks[c][r] = { x: 0, y: 0, status: 1 };
+let bricks = [];
+function initializeBricks() {
+    bricks = [];
+    for (let c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for (let r = 0; r < brickRowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 1 };
+        }
     }
 }
+
+initializeBricks();
 
 // 硬幣屬性
 let coins = [];
@@ -242,7 +247,7 @@ function collisionDetection() {
     }
 
     // 如果所有磚塊都被打完，顯示勝利訊息
-    if (bricksRemaining == 0) {
+    if (remainingBricks == 0) {
         gameWinSound.play();
         setTimeout(function () {
             showMessage("主委加碼！", true);
@@ -271,7 +276,7 @@ function drawFooter() {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "right";
-    ctx.fillText("V.004", canvas.width - 10, canvas.height - 10);
+    ctx.fillText("V.005", canvas.width - 10, canvas.height - 10);
 }
 
 // 顯示訊息並控制遊戲暫停
@@ -366,5 +371,6 @@ function showStartMessage() {
 }
 
 // 初始化
+initializeBricks();
 drawScoreAndTime();
 showStartMessage();
