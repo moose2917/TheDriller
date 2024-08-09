@@ -40,7 +40,7 @@ for (let c = 0; c < brickColumnCount; c++) {
 // 硬幣屬性
 let coins = [];
 const coinRadius = 7 * 2; // 硬幣大小增加至250%
-const coinDropChance = 0.5; // 50% 的機率掉落硬幣
+let coinDropChance = 0.5; // 50% 的機率掉落硬幣
 let collectedCoins = 0;
 
 // 遊戲狀態
@@ -48,6 +48,7 @@ let gameStarted = false;
 let score = 0;
 let timeElapsed = 0;
 let timerInterval;
+let remainingBricks = brickRowCount * brickColumnCount;
 
 // 圖像資源
 const ballImage = new Image();
@@ -219,9 +220,15 @@ function collisionDetection() {
                     b.status = 0;
                     brickHitSound.play();
                     score += 10;
+                    remainingBricks--; // 更新剩餘磚頭數量
                     drawScoreAndTime(); // 更新分數顯示
 
-                    // 50% 機率掉落硬幣
+                    // 如果是最後一顆磚頭，將掉落硬幣機率設為0
+                    if (remainingBricks === 1) {
+                        coinDropChance = 0;
+                    }
+
+                    // 掉落硬幣
                     if (Math.random() < coinDropChance) {
                         coins.push({
                             x: b.x + brickWidth / 2,
@@ -254,8 +261,9 @@ function drawScoreAndTime() {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "center";
-    ctx.fillText("硬幣: " + collectedCoins, canvas.width / 4, 30); // 顯示收集到的硬幣數量
-    ctx.fillText("時間: " + timeElapsed + "秒", (canvas.width / 4) * 3, 30); // 時間顯示在頂部靠右
+    ctx.fillText("硬幣: " + collectedCoins, canvas.width / 6, 30); // 顯示收集到的硬幣數量
+    ctx.fillText("剩餘磚頭: " + remainingBricks, canvas.width / 2, 30); // 顯示剩餘磚頭數量
+    ctx.fillText("時間: " + timeElapsed + "秒", (canvas.width / 6) * 5, 30); // 時間顯示在頂部靠右
 }
 
 // 在畫面的右下角處加上顯示版本號的功能
@@ -263,7 +271,7 @@ function drawFooter() {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "right";
-    ctx.fillText("V.002", canvas.width - 10, canvas.height - 10);
+    ctx.fillText("V.003", canvas.width - 10, canvas.height - 10);
 }
 
 // 顯示訊息並控制遊戲暫停
