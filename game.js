@@ -293,6 +293,17 @@ function draw() {
     x += dx;
     y += dy;
 
+    // 確保小球在畫布內部
+    if (x < ballRadius) {
+        x = ballRadius;
+    } else if (x > canvas.width - ballRadius) {
+        x = canvas.width - ballRadius;
+    }
+
+    if (y < ballRadius) {
+        y = ballRadius;
+    }
+
     // 檢查小球與牆壁的碰撞
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
