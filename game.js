@@ -39,7 +39,7 @@ for (let c = 0; c < brickColumnCount; c++) {
 
 // 硬幣屬性
 let coins = [];
-const coinRadius = 7 * 2.5; // 硬幣大小增加至250%
+const coinRadius = 7 * 2; // 硬幣大小增加至250%
 const coinDropChance = 0.5; // 50% 的機率掉落硬幣
 let collectedCoins = 0;
 
@@ -258,6 +258,14 @@ function drawScoreAndTime() {
     ctx.fillText("時間: " + timeElapsed + "秒", (canvas.width / 4) * 3, 30); // 時間顯示在頂部靠右
 }
 
+// 在畫面的右下角處加上顯示版本號的功能
+function drawFooter() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.textAlign = "right";
+    ctx.fillText("V.002", canvas.width - 10, canvas.height - 10);
+}
+
 // 顯示訊息並控制遊戲暫停
 function showMessage(message, isWin) {
     clearInterval(timerInterval);
@@ -282,6 +290,7 @@ function draw() {
     drawCoins();  // 繪製硬幣
     drawPaddle(); // 确保每次都绘制球拍
     drawScoreAndTime();  // 每一幀都確保硬幣數量和時間被正確顯示
+    drawFooter();  // 在右下角顯示版本號
 
     updateCoins();  // 更新硬幣位置
 
@@ -293,26 +302,28 @@ function draw() {
     x += dx;
     y += dy;
 
-    // 確保小球在畫布內部
+    // 确保小球在画布内部
     if (x < ballRadius) {
         x = ballRadius;
     } else if (x > canvas.width - ballRadius) {
         x = canvas.width - ballRadius;
     }
 
-    if (y < ballRadius) {
-        y = ballRadius;
+    // 碰撞检测：顶部的红线处
+    const ceilingLine = 40; // 天花板红线位置，大约是40px的位置
+    if (y < ballRadius + ceilingLine) {
+        y = ballRadius + ceilingLine;  // 防止小球卡在天花板处
+        dy = -dy;  // 反弹
     }
 
-    // 檢查小球與牆壁的碰撞
+    // 碰撞检测：左右边界
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
     }
-    if (y + dy < ballRadius) {
-        dy = -dy;
-    } else if (y + dy > canvas.height - ballRadius - paddleHeight) {
+
+    // 碰撞检测：底部（球拍处）
+    if (y + dy > canvas.height - ballRadius - paddleHeight) {
         if (x > paddleX && x < paddleX + paddleWidth) {
-            // 调整球的回弹力
             const hitPosition = (x - (paddleX + paddleWidth / 2)) / (paddleWidth / 2);
             dx = hitPosition * maxDx; // 根据击打位置调整水平速度
             dy = -Math.abs(dy); // 使球反弹向上
@@ -343,6 +354,7 @@ function showStartMessage() {
     ctx.textAlign = "center";
     ctx.fillText("按空白鍵開始遊戲", canvas.width / 2, canvas.height / 2 - 20);
     ctx.fillText("或碰一下螢幕", canvas.width / 2, canvas.height / 2 + 20);
+    drawFooter();  // 顯示版本號
 }
 
 // 初始化
