@@ -10,7 +10,6 @@ canvas.height = Math.min(window.innerHeight - 20, 480);  // 調整為窄但長�
 const paddleHeight = 10;
 const paddleWidth = 75;
 let paddleX = (canvas.width - paddleWidth) / 2;
-const paddleSpeed = 7;  // 球拍定速
 
 // 小球屬性
 let ballRadius = 10;
@@ -18,34 +17,28 @@ let x = canvas.width / 2;
 let y = canvas.height - 30;
 let dx = 2;
 let dy = -2;
-const maxDx = 5;  // 球的最大水平速度
 
 // 磚塊屬性
-const brickRowCount = 3;  // 3行，以避免与天花板重叠
+const brickRowCount = 4;  // 4行
 const brickColumnCount = 5;
 const brickWidth = (canvas.width - 2 * 20) / brickColumnCount - 10; // 平衡居中放置磚塊
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 50;  // 調整磚塊距離頂部的位置，以避免与天花板重叠
+const brickOffsetTop = 80;
 const brickOffsetLeft = 20; // 增加一點左右邊距
 
-let bricks = [];
-function initializeBricks() {
-    bricks = [];
-    for (let c = 0; c < brickColumnCount; c++) {
-        bricks[c] = [];
-        for (let r = 0; r < brickRowCount; r++) {
-            bricks[c][r] = { x: 0, y: 0, status: 1 };
-        }
+const bricks = [];
+for (let c = 0; c < brickColumnCount; c++) {
+    bricks[c] = [];
+    for (let r = 0; r < brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0, status: 1 };
     }
 }
 
-initializeBricks();
-
 // 硬幣屬性
 let coins = [];
-const coinRadius = 7 * 2; // 硬幣大小增加至200%
-let coinDropChance = 0.5; // 50% 的機率掉落硬幣
+const coinRadius = 14; // 調整為原來的2倍
+const coinDropChance = 0.5; // 50% 的機率掉落硬幣
 let collectedCoins = 0;
 
 // 遊戲狀態
@@ -53,7 +46,6 @@ let gameStarted = false;
 let score = 0;
 let timeElapsed = 0;
 let timerInterval;
-let remainingBricks = brickRowCount * brickColumnCount;
 
 // 圖像資源
 const ballImage = new Image();
@@ -96,7 +88,7 @@ function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
         rightPressed = true;
     } else if (e.key == "Left" || e.key == "ArrowLeft") {
-        leftPressed = true;
+        leftPressed = true; // 修正此行，使球拍可以往左移動
     }
 }
 
@@ -218,22 +210,17 @@ function collisionDetection() {
     for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
             let b = bricks[c][r];
-            if (b.status == 1) {
+            // 只計算紅線以下的磚塊
+            if (b.status == 1 && b.y > 40) {
                 bricksRemaining++;
                 if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
                     dy = -dy;
                     b.status = 0;
                     brickHitSound.play();
                     score += 10;
-                    remainingBricks--; // 更新剩餘磚頭數量
                     drawScoreAndTime(); // 更新分數顯示
 
-                    // 如果只剩最后一个砖头，将掉落硬币的概率设置为0
-                    if (remainingBricks === 1) {
-                        coinDropChance = 0;
-                    }
-
-                    // 掉落硬幣
+                    // 50% 機率掉落硬幣
                     if (Math.random() < coinDropChance) {
                         coins.push({
                             x: b.x + brickWidth / 2,
@@ -246,8 +233,8 @@ function collisionDetection() {
         }
     }
 
-    // 如果所有磚塊都被打完，顯示勝利訊息
-    if (remainingBricks == 0) {
+    // 如果所有紅線以下的磚塊都被打完，顯示勝利訊息
+    if (bricksRemaining == 0) {
         gameWinSound.play();
         setTimeout(function () {
             showMessage("主委加碼！", true);
@@ -257,26 +244,20 @@ function collisionDetection() {
     return false;
 }
 
+
 // 繪製分數和時間
 function drawScoreAndTime() {
-    // 绘制天花板区域
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, canvas.width, 40);
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, 40); // 在頂部創建一個天花板
+    ctx.fillStyle = "#000"; // 黑色天花板
+    ctx.fill();
+    ctx.closePath();
 
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "center";
-    ctx.fillText("硬幣: " + collectedCoins, canvas.width / 6, 30); // 顯示收集到的硬幣數量
-    ctx.fillText("剩餘磚頭: " + remainingBricks, canvas.width / 2, 30); // 顯示剩餘磚頭數量
-    ctx.fillText("時間: " + timeElapsed + "秒", (canvas.width / 6) * 5, 30); // 時間顯示在頂部靠右
-}
-
-// 在畫面的右下角處加上顯示版本號的功能
-function drawFooter() {
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#0095DD";
-    ctx.textAlign = "right";
-    ctx.fillText("V.005", canvas.width - 10, canvas.height - 10);
+    ctx.fillText("硬幣: " + collectedCoins, canvas.width / 4, 30); // 顯示收集到的硬幣數量
+    ctx.fillText("時間: " + timeElapsed + "秒", (canvas.width / 4) * 3, 30); // 時間顯示在頂部靠右
 }
 
 // 顯示訊息並控制遊戲暫停
@@ -301,9 +282,8 @@ function draw() {
     drawBricks();
     drawBall();
     drawCoins();  // 繪製硬幣
-    drawPaddle(); // 确保每次都绘制球拍
+    drawPaddle();
     drawScoreAndTime();  // 每一幀都確保硬幣數量和時間被正確顯示
-    drawFooter();  // 在右下角顯示版本號
 
     updateCoins();  // 更新硬幣位置
 
@@ -315,31 +295,18 @@ function draw() {
     x += dx;
     y += dy;
 
-    // 确保小球在画布内部
-    if (x < ballRadius) {
-        x = ballRadius;
-    } else if (x > canvas.width - ballRadius) {
-        x = canvas.width - ballRadius;
-    }
-
-    // 碰撞检测：顶部的红线处
-    const ceilingLine = 40; // 天花板红线位置，大约是40px的位置
-    if (y < ballRadius + ceilingLine) {
-        y = ballRadius + ceilingLine;  // 防止小球卡在天花板处
-        dy = -dy;  // 反弹
-    }
-
-    // 碰撞检测：左右边界
+    // 檢查小球與牆壁的碰撞
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
     }
-
-    // 碰撞检测：底部（球拍处）
-    if (y + dy > canvas.height - ballRadius - paddleHeight) {
+    if (y + dy < ballRadius) {
+        dy = -dy;
+    } else if (y + dy > canvas.height - ballRadius - paddleHeight) {
         if (x > paddleX && x < paddleX + paddleWidth) {
-            const hitPosition = (x - (paddleX + paddleWidth / 2)) / (paddleWidth / 2);
-            dx = hitPosition * maxDx; // 根据击打位置调整水平速度
-            dy = -Math.abs(dy); // 使球反弹向上
+            let relativeX = x - paddleX;
+            let offset = relativeX / paddleWidth - 0.5;
+            dx = offset * 10;
+            dy = -dy;
         } else {
             // 小球落到畫布底部，遊戲結束
             gameOverSound.play();
@@ -348,13 +315,15 @@ function draw() {
             }, 100);
             return; // 停止繪製以暫停遊戲
         }
+    } else if (y + dy < 40 + ballRadius) { // 碰到紅線反彈
+        dy = -dy;
     }
 
     // 鍵盤控制球拍移動
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
-        paddleX += paddleSpeed;
+        paddleX += 7;
     } else if (leftPressed && paddleX > 0) {
-        paddleX -= paddleSpeed;
+        paddleX -= 7;
     }
 
     requestAnimationFrame(draw);
@@ -367,10 +336,8 @@ function showStartMessage() {
     ctx.textAlign = "center";
     ctx.fillText("按空白鍵開始遊戲", canvas.width / 2, canvas.height / 2 - 20);
     ctx.fillText("或碰一下螢幕", canvas.width / 2, canvas.height / 2 + 20);
-    drawFooter();  // 顯示版本號
 }
 
 // 初始化
-initializeBricks();
 drawScoreAndTime();
 showStartMessage();
