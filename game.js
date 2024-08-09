@@ -21,12 +21,12 @@ let dy = -2;
 const maxDx = 5;  // 球的最大水平速度
 
 // 磚塊屬性
-const brickRowCount = 4;  // 4行
+const brickRowCount = 3;  // 3行，以避免与天花板重叠
 const brickColumnCount = 5;
 const brickWidth = (canvas.width - 2 * 20) / brickColumnCount - 10; // 平衡居中放置磚塊
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 100;  // 調整磚塊距離頂部的位置，以留出天花板的空間
+const brickOffsetTop = 50;  // 調整磚塊距離頂部的位置，以避免与天花板重叠
 const brickOffsetLeft = 20; // 增加一點左右邊距
 
 const bricks = [];
@@ -39,7 +39,7 @@ for (let c = 0; c < brickColumnCount; c++) {
 
 // 硬幣屬性
 let coins = [];
-const coinRadius = 7 * 2; // 硬幣大小增加至250%
+const coinRadius = 7 * 2; // 硬幣大小增加至200%
 let coinDropChance = 0.5; // 50% 的機率掉落硬幣
 let collectedCoins = 0;
 
@@ -223,7 +223,7 @@ function collisionDetection() {
                     remainingBricks--; // 更新剩餘磚頭數量
                     drawScoreAndTime(); // 更新分數顯示
 
-                    // 如果是最後一顆磚頭，將掉落硬幣機率設為0
+                    // 如果只剩最后一个砖头，将掉落硬币的概率设置为0
                     if (remainingBricks === 1) {
                         coinDropChance = 0;
                     }
@@ -271,7 +271,7 @@ function drawFooter() {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "right";
-    ctx.fillText("V.003", canvas.width - 10, canvas.height - 10);
+    ctx.fillText("V.004", canvas.width - 10, canvas.height - 10);
 }
 
 // 顯示訊息並控制遊戲暫停
