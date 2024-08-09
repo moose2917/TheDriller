@@ -192,10 +192,13 @@ function updateCoins() {
 function drawBricks() {
     for (let r = 0; r < brickRowCount; r++) {
         for (let c = 0; c < brickColumnCount; c++) {
+            // 跳過紅線以上的磚塊
+            const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+            if (brickY < 40) continue;
+
             if (r % 2 == 1 && c == brickColumnCount - 1) continue; // 偶數行跳過最後一個磚塊
             if (bricks[c][r].status == 1) {
                 const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft + (r % 2) * (brickWidth / 2); // 交錯排列
-                const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
                 ctx.drawImage(brickImage, brickX, brickY, brickWidth, brickHeight);
@@ -210,8 +213,7 @@ function collisionDetection() {
     for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
             let b = bricks[c][r];
-            // 只計算紅線以下的磚塊
-            if (b.status == 1 && b.y > 40) {
+            if (b.status == 1 && b.y >= 40) { // 只計算紅線以下的磚塊
                 bricksRemaining++;
                 if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
                     dy = -dy;
@@ -263,7 +265,6 @@ function drawScoreAndTime() {
 // 顯示訊息並控制遊戲暫停
 function showMessage(message, isWin) {
     clearInterval(timerInterval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = "20px Arial";
     ctx.fillStyle = "#FF0000";
     ctx.textAlign = "center";
