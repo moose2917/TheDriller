@@ -247,7 +247,10 @@ function collisionDetection() {
 
 // 繪製分數和時間
 function drawScoreAndTime() {
-    ctx.clearRect(0, 0, canvas.width, 40); // 清除之前繪製的分數和時間
+    // 绘制黑底背景
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, 40);
+
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.textAlign = "center";
@@ -277,7 +280,7 @@ function draw() {
     drawBricks();
     drawBall();
     drawCoins();  // 繪製硬幣
-    drawPaddle();
+    drawPaddle(); // 确保每次都绘制球拍
     drawScoreAndTime();  // 每一幀都確保硬幣數量和時間被正確顯示
 
     updateCoins();  // 更新硬幣位置
