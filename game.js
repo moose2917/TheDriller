@@ -21,10 +21,10 @@ let dy = -2;
 // 磚塊屬性
 const brickRowCount = 3;
 const brickColumnCount = 5;
-const brickWidth = 75;
+const brickWidth = (canvas.width - 2 * 30) / brickColumnCount - 10; // 平衡居中放置磚塊
 const brickHeight = 20;
 const brickPadding = 10;
-const brickOffsetTop = 30;
+const brickOffsetTop = 50;
 const brickOffsetLeft = 30;
 
 const bricks = [];
@@ -34,6 +34,18 @@ for (let c = 0; c < brickColumnCount; c++) {
         bricks[c][r] = { x: 0, y: 0, status: 1 };
     }
 }
+
+// 遊戲狀態
+let gameStarted = false;
+let score = 0;
+let timeElapsed = 0;
+let timerInterval;
+
+// 圖像資源
+const ballImage = new Image();
+ballImage.src = 'drill.png'; // 替換為電鑽的圖像
+const brickImage = new Image();
+brickImage.src = 'brick.png'; // 替換為磚塊的圖像
 
 // 音效
 const brickHitSound = new Audio('brick-hit.mp3'); // 磚塊音效
@@ -46,6 +58,8 @@ let leftPressed = false;
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("keydown", startGameHandler, false);
+canvas.addEventListener("touchstart", startGameHandler, false);
 
 function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
@@ -60,6 +74,19 @@ function keyUpHandler(e) {
         rightPressed = false;
     } else if (e.key == "Left" || e.key == "ArrowLeft") {
         leftPressed = false;
+    }
+}
+
+function startGameHandler(e) {
+    if (!gameStarted && (e.key === " " || e.type === "touchstart")) {
+        gameStarted = true;
+        timerInterval = setInterval(function () {
+            timeElapsed++;
+            drawScoreAndTime();
+        }, 1000);
+        document.removeEventListener("keydown", startGameHandler);
+        canvas.removeEventListener("touchstart", startGameHandler);
+        draw(); // 開始遊戲循環
     }
 }
 
@@ -100,11 +127,7 @@ function drawPaddle() {
 
 // 繪製小球
 function drawBall() {
-    ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";  // 小球顏色
-    ctx.fill();
-    ctx.closePath();
+    ctx.drawImage(ballImage, x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
 }
 
 // 繪製磚塊
@@ -116,11 +139,7 @@ function drawBricks() {
                 const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
-                ctx.beginPath();
-                ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStyle = "#0095DD";  // 磚塊顏色
-                ctx.fill();
-                ctx.closePath();
+                ctx.drawImage(brickImage, brickX, brickY, brickWidth, brickHeight);
             }
         }
     }
@@ -138,6 +157,8 @@ function collisionDetection() {
                     dy = -dy;
                     b.status = 0;
                     brickHitSound.play();
+                    score += 10;
+                    drawScoreAndTime();
                 }
             }
         }
@@ -147,23 +168,44 @@ function collisionDetection() {
     if (bricksRemaining == 0) {
         gameWinSound.play();
         setTimeout(function () {
-            alert("主委加碼！");
-            if (confirm("再玩一局嗎？")) {
-                document.location.reload();
-            }
+            showMessage("主委加碼！", true);
         }, 100);
         return true;
     }
     return false;
 }
 
+// 繪製分數和時間
+function drawScoreAndTime() {
+    ctx.clearRect(0, 0, canvas.width, 40); // 清除之前繪製的分數和時間
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("分數: " + score, 8, 20);
+    ctx.fillText("時間: " + timeElapsed + "秒", canvas.width - 100, 20);
+}
+
+// 顯示訊息並控制遊戲暫停
+function showMessage(message, isWin) {
+    clearInterval(timerInterval);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#FF0000";
+    ctx.textAlign = "center";
+    ctx.fillText(message, canvas.width / 2, canvas.height / 2 - 20);
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("再玩一局嗎？點擊此處開始", canvas.width / 2, canvas.height / 2 + 20);
+    canvas.addEventListener("click", function () {
+        document.location.reload();
+    });
+}
+
 // 主繪製函數
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 40, canvas.width, canvas.height - 40);
     drawBricks();
     drawBall();
     drawPaddle();
-    
+
     if (collisionDetection()) {
         return; // 停止繪製以暫停遊戲
     }
@@ -185,10 +227,7 @@ function draw() {
             // 小球落到畫布底部，遊戲結束
             gameOverSound.play();
             setTimeout(function () {
-                alert("得罪了！");
-                if (confirm("再玩一局嗎？")) {
-                    document.location.reload();
-                }
+                showMessage("得罪了！", false);
             }, 100);
             return; // 停止繪製以暫停遊戲
         }
@@ -204,4 +243,15 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
-draw();  // 啟動遊戲循環
+// 顯示開始遊戲提示
+function showStartMessage() {
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.textAlign = "center";
+    ctx.fillText("按空白鍵開始遊戲", canvas.width / 2, canvas.height / 2 - 20);
+    ctx.fillText("或碰一下螢幕", canvas.width / 2, canvas.height / 2 + 20);
+}
+
+// 初始化
+drawScoreAndTime();
+showStartMessage();
