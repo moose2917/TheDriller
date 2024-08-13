@@ -12,15 +12,42 @@
             align-items: center;
             height: 100vh;
             background-color: #000;
+            flex-direction: column;
         }
         canvas {
             border: 1px solid #fff;
             background-color: #000;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="480" height="320"></canvas>
+    <!-- Login Page -->
+    <div id="loginPage">
+        <input type="text" id="playerName" placeholder="請輸入您的姓名" required>
+        <button id="submitBtn">提交</button>
+    </div>
+
+    <!-- Game Page -->
+    <div id="gamePage" class="hidden">
+        <canvas id="gameCanvas" width="320" height="480"></canvas>
+    </div>
+
     <script src="game.js"></script>
+    <script>
+        const submitBtn = document.getElementById('submitBtn');
+        const loginPage = document.getElementById('loginPage');
+        const gamePage = document.getElementById('gamePage');
+
+        submitBtn.addEventListener('click', () => {
+            const playerName = document.getElementById('playerName').value;
+            if (playerName) {
+                loginPage.classList.add('hidden');
+                gamePage.classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
