@@ -11,8 +11,8 @@ let characterOriginalWidth = 158; // 角色的原始寬度
 let characterOriginalHeight = 100; // 角色的原始高度
 
 // 將角色縮放至原始大小的一半
-let characterWidth = characterOriginalWidth / 2;
-let characterHeight = characterOriginalHeight / 2;
+let characterWidth = characterOriginalWidth / 2.5;
+let characterHeight = characterOriginalHeight / 2.5;
 let characterX = (canvas.width - characterWidth) / 2;
 let characterY = canvas.height - characterHeight; // 將角色定位於canvas的底部
 
@@ -34,7 +34,7 @@ backgroundImage.src = './images/background.png';
 
 // 球的屬性
 let ballRadius = 10;
-let x = canvas.width / 2;
+let x = canvas.width;
 let y = canvas.height - characterHeight - ballRadius - 1; // 初始位置設置在角色的上方
 let dx = 2 * (Math.random() < 0.5 ? 1 : -1); // 隨機初始水平速度
 let dy = -3; // 初始垂直速度向上
