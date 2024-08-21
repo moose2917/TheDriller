@@ -22,18 +22,27 @@
             display: none;
         }
     </style>
+    <!-- 預加載音效文件 -->
+    <link rel="preload" href="sounds/brick-hit.mp3" as="audio">
+    <link rel="preload" href="sounds/game-over.mp3" as="audio">
+    <link rel="preload" href="sounds/game-win.mp3" as="audio">
+    <link rel="preload" href="sounds/coin-collect.mp3" as="audio">
+    <link rel="preload" href="sounds/background-music.mp3" as="audio">
 </head>
 <body>
-    <!-- Login Page -->
+    <!-- 登入頁面 -->
     <div id="loginPage">
         <input type="text" id="playerName" placeholder="請輸入您的姓名" required>
         <button id="submitBtn">提交</button>
     </div>
 
-    <!-- Game Page -->
+    <!-- 遊戲頁面 -->
     <div id="gamePage" class="hidden">
         <canvas id="gameCanvas" width="320" height="480"></canvas>
     </div>
+
+    <!-- 顯示遊戲結束或勝利訊息的區域 -->
+    <div id="messageContainer" class="hidden"></div>
 
     <script src="game.js"></script>
     <script>
@@ -44,8 +53,9 @@
         submitBtn.addEventListener('click', () => {
             const playerName = document.getElementById('playerName').value;
             if (playerName) {
-                loginPage.classList.add('hidden');
-                gamePage.classList.remove('hidden');
+                loginPage.classList.add('hidden'); // 隱藏登入頁面
+                gamePage.classList.remove('hidden'); // 顯示遊戲頁面
+                initializeGame(playerName); // 初始化遊戲並顯示提示訊息
             }
         });
     </script>
