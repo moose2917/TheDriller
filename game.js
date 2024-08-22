@@ -271,7 +271,7 @@ function drawCoins() {
     }
 }
 
-// 更新硬幣狀態
+// 更新代幣狀況
 function updateCoins() {
     for (let i = 0; i < coins.length; i++) {
         if (coins[i].active) {
@@ -283,9 +283,9 @@ function updateCoins() {
                 if (coins[i].type === 'coin') {
                     collectedCoins -= 1; // 陰德減少1
                     coinCollectSound.play(); // 播放收集硬幣音效
-                } else if (coins[i].type === 'minus' && currentEffect === null) {
+                } else if (coins[i].type === 'minus') {
                     applyEffect('minus', './images/character_small.png', 100, 100);
-                } else if (coins[i].type === 'plus' && currentEffect === null) {
+                } else if (coins[i].type === 'plus') {
                     applyEffect('plus', './images/character_big.png', 313, 100); // 假設 character_big 的大小為 313x100
                 }
             }
@@ -297,26 +297,27 @@ function updateCoins() {
 }
 
 
-function applyEffect(effectType, imagePath, newWidth, newHeight) {
-    // 无论是否相同效果，取消之前的效果计时
-    clearTimeout(effectTimeout);
-    
-    // 如果效果不同，或者没有当前效果，切换到新的效果
-    if (currentEffect !== effectType) {
-        currentEffect = effectType;
-        characterImage.src = imagePath;
-        characterWidth = newWidth / 2.5;
-        characterHeight = newHeight / 2.5;
-    }
 
-    // 设置效果持续时间为10秒，时间结束后恢复初始状态
+function applyEffect(effectType, imagePath, newWidth, newHeight) {
+    // 清除当前的效果计时器
+    clearTimeout(effectTimeout);
+
+    // 无论效果是否相同，切换到新的效果
+    currentEffect = effectType;
+    characterImage.src = imagePath;
+    characterWidth = newWidth / 2.5;
+    characterHeight = newHeight / 2.5;
+
+    // 重新开始10秒计时
     effectTimeout = setTimeout(function () {
+        // 恢复到初始状态
         characterImage.src = './images/character.png';
         characterWidth = characterOriginalWidth / 2.5;
         characterHeight = characterOriginalHeight / 2.5;
-        currentEffect = null; // 重置效果
+        currentEffect = null; // 清除当前效果
     }, 10000);
 }
+
 
 
 
