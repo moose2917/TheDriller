@@ -22,22 +22,30 @@ characterImage.src = './images/character.png';
 const ballImage = new Image();
 ballImage.src = './images/drill.png';
 const brickImage = new Image();
-const coinImage = new Image();
 brickImage.src = './images/brick.png';
+const coinImage = new Image();
 coinImage.src = './images/coin.png';
 const minusImage = new Image(); // 新增 minus 圖像
 minusImage.src = './images/minus.png';
+const plusImage = new Image(); // 新增 plus 圖像
+plusImage.src = './images/plus.png';
 const characterSmallImage = new Image(); // 角色縮小圖像
 characterSmallImage.src = './images/character_small.png';
+const characterBigImage = new Image(); // 角色放大圖像
+characterBigImage.src = './images/character_big.png';
 const backgroundImage = new Image();
 backgroundImage.src = './images/background.png';
 
+// 紀錄當前的效果
+let currentEffect = null;
+let effectTimeout = null;
+
 // 球的屬性
 let ballRadius = 10;
-let x = canvas.width;
-let y = canvas.height - characterHeight - ballRadius - 1; // 初始位置設置在角色的上方
-let dx = 2 * (Math.random() < 0.5 ? 1 : -1); // 隨機初始水平速度
-let dy = -3; // 初始垂直速度向上
+let x = canvas.width / 2; // 將球的初始X位置設為畫布的中間
+let y = canvas.height - characterHeight - ballRadius - 20; // 將球的初始Y位置設為角色上方約20像素的位置
+let dx = 3 * 0.7 * (Math.random() < 0.5 ? 1 : -1); // 隨機設置水平速度並降低70%
+let dy = -3 * 0.7; // 垂直速度向上並降低70%
 
 // 磚塊屬性
 const brickRowCount = 2; // 2行磚塊
@@ -61,7 +69,6 @@ const roofHeight = 40; // 屋頂區域的高度
 // 硬幣屬性
 let coins = [];
 const coinRadius = 14;
-const coinDropChance = 0.3; // 調整硬幣掉落概率為30%
 let collectedCoins = 0; // 已收集的硬幣數
 
 // 遊戲狀態屬性
@@ -141,6 +148,12 @@ let leftPressed = false;
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
+// 監聽觸摸事件
+canvas.addEventListener('touchstart', touchStartHandler, false);
+canvas.addEventListener('touchmove', touchMoveHandler, false);
+canvas.addEventListener('touchend', touchEndHandler, false);
+
+// 角色移動函數
 function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
         rightPressed = true; // 設置右鍵按下狀態
@@ -155,6 +168,47 @@ function keyUpHandler(e) {
     } else if (e.key == "Left" || e.key == "ArrowLeft") {
         leftPressed = false; // 取消左鍵按下狀態
     }
+}
+
+// 觸摸開始時的處理函數
+function touchStartHandler(e) {
+    e.preventDefault(); // 阻止默認事件，如滾動
+    const touch = e.touches[0];
+    const touchX = touch.clientX - canvas.offsetLeft;
+
+    if (touchX > characterX && touchX < characterX + characterWidth) {
+        // 如果觸摸點在角色上，則記錄開始觸摸的位置
+        rightPressed = false;
+        leftPressed = false;
+    } else if (touchX > characterX + characterWidth) {
+        rightPressed = true;
+        leftPressed = false;
+    } else if (touchX < characterX) {
+        leftPressed = true;
+        rightPressed = false;
+    }
+}
+
+// 觸摸移動時的處理函數
+function touchMoveHandler(e) {
+    e.preventDefault(); // 阻止默認事件，如滾動
+    const touch = e.touches[0];
+    const touchX = touch.clientX - canvas.offsetLeft;
+
+    if (touchX > canvas.width - characterWidth / 2) {
+        characterX = canvas.width - characterWidth;
+    } else if (touchX < characterWidth / 2) {
+        characterX = 0;
+    } else {
+        characterX = touchX - characterWidth / 2;
+    }
+}
+
+// 觸摸結束時的處理函數
+function touchEndHandler(e) {
+    e.preventDefault(); // 阻止默認事件，如滾動
+    rightPressed = false;
+    leftPressed = false;
 }
 
 // 開始遊戲的主要邏輯
@@ -183,7 +237,6 @@ function drawCharacter() {
     ctx.drawImage(characterImage, characterX, characterY, characterWidth, characterHeight);
 }
 
-
 // 繪製球
 function drawBall() {
     const scaleFactor = 0.8; // 縮放比例為 80%
@@ -192,8 +245,7 @@ function drawBall() {
     ctx.save(); // 保存當前的繪製狀態
     ctx.translate(x, y); // 將原點移動到球的中心
     ctx.rotate((90 * Math.PI) / 180); // 將圖像順時針旋轉90度
-    ctx.scale(scaleFactor, scaleFactor); // 按照縮放比例縮放圖像
-    ctx.drawImage(ballImage, -scaledRadius, -scaledRadius, scaledRadius * 2, scaledRadius * 2);
+    ctx.drawImage(ballImage, -scaledRadius, -scaledRadius, scaledRadius * 2, scaledRadius * 2); // 根據縮放後的大小繪製球
     ctx.restore(); // 恢復繪製狀態
 }
 
@@ -211,6 +263,8 @@ function drawCoins() {
                 ctx.drawImage(coinImage, -scaledRadius, -scaledRadius, scaledRadius * 2, scaledRadius * 2);
             } else if (coins[i].type === 'minus') {
                 ctx.drawImage(minusImage, -scaledRadius, -scaledRadius, scaledRadius * 2, scaledRadius * 2);
+            } else if (coins[i].type === 'plus') {
+                ctx.drawImage(plusImage, -scaledRadius, -scaledRadius, scaledRadius * 2, scaledRadius * 2);
             }
             ctx.restore(); // 恢復繪製狀態
         }
@@ -229,13 +283,10 @@ function updateCoins() {
                 if (coins[i].type === 'coin') {
                     collectedCoins += 1;
                     coinCollectSound.play(); // 播放收集硬幣音效
-                } else if (coins[i].type === 'minus') {
-                    characterWidth = characterOriginalWidth / 3;
-                    characterHeight = characterOriginalHeight / 3;
-                    setTimeout(function () {
-                        characterWidth = characterOriginalWidth / 2;
-                        characterHeight = characterOriginalHeight / 2;
-                    }, 10000); // 10秒後恢復正常大小
+                } else if (coins[i].type === 'minus' && currentEffect === null) {
+                    applyEffect('minus', './images/character_small.png', 100, 100);
+                } else if (coins[i].type === 'plus' && currentEffect === null) {
+                    applyEffect('plus', './images/character_big.png', 313, 100); // 假設 character_big 的大小為 313x100
                 }
             }
             if (coins[i].y > canvas.height) {
@@ -245,6 +296,20 @@ function updateCoins() {
     }
 }
 
+function applyEffect(effectType, imagePath, newWidth, newHeight) {
+    currentEffect = effectType; // 設定當前效果
+    characterImage.src = imagePath; // 切換角色圖像
+    characterWidth = newWidth / 2.5;
+    characterHeight = newHeight / 2.5;
+
+    // 在10秒後恢復原始狀態
+    effectTimeout = setTimeout(function () {
+        characterImage.src = './images/character.png';
+        characterWidth = characterOriginalWidth / 2.5;
+        characterHeight = characterOriginalHeight / 2.5;
+        currentEffect = null; // 重置效果
+    }, 10000);
+}
 
 // 繪製磚塊
 function drawBricks() {
@@ -278,19 +343,26 @@ function collisionDetection() {
                     drawScoreAndTime(); // 更新分數顯示
 
                     let randomDrop = Math.random();
-                    if (randomDrop < 0.3) { // 30% 機率掉落 coin
+                    if (randomDrop < 0.2) { // 20% 機率掉落 coin
                         coins.push({
                             x: b.x + brickWidth / 2,
                             y: b.y,
                             active: true,
                             type: 'coin'
                         });
-                    } else if (randomDrop < 0.6) { // 30% 機率掉落 minus
+                    } else if (randomDrop < 0.5) { // 30% 機率掉落 minus
                         coins.push({
                             x: b.x + brickWidth / 2,
                             y: b.y,
                             active: true,
                             type: 'minus'
+                        });
+                    } else if (randomDrop < 0.8) { // 30% 機率掉落 plus
+                        coins.push({
+                            x: b.x + brickWidth / 2,
+                            y: b.y,
+                            active: true,
+                            type: 'plus'
                         });
                     }
 
@@ -305,9 +377,37 @@ function collisionDetection() {
             }
         }
     }
+
+    // 檢查球是否撞到牆壁
+    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        dx = -dx; // 反轉水平方向
+    }
+    if (y + dy < ballRadius) {
+        dy = -dy; // 反轉垂直方向
+    } else if (y > canvas.height - characterHeight - ballRadius) {
+        // 檢查球是否撞到角色（反擊板）
+        if (x > characterX - ballRadius && x < characterX + characterWidth + ballRadius) {
+            let relativeX = x - characterX;
+            let offset = (relativeX / characterWidth - 0.5) * 0.25; // 調整影響範圍
+
+            // 降低邊緣加速度的變化幅度
+            if (relativeX < characterWidth * 0.25 || relativeX > characterWidth * 0.75) {
+                dx = offset * 4; // 減小邊緣處的速度變化
+            } else {
+                dx = offset * 8; // 保持中間區域的反應
+            }
+
+            dy = -dy; // 反轉垂直方向
+        } else {
+            setTimeout(function () {
+                gameOver(); // 顯示「得罪了！」並停止遊戲
+            }, 100);
+            return;
+        }
+    }
+
     return false;
 }
-
 
 // 繪製分數和時間，並顯示屋頂
 function drawScoreAndTime() {
@@ -334,8 +434,15 @@ function showMessage(message, isWin) {
     ctx.textAlign = "center";
     ctx.fillText(message, canvas.width / 2, canvas.height / 2 - 20);
 
+    // 如果已經存在重新挑戰按鈕，先移除
+    let existingRestartBtn = document.getElementById('restartButton');
+    if (existingRestartBtn) {
+        existingRestartBtn.remove();
+    }
+
     const restartBtn = document.createElement('button');
     restartBtn.innerText = "重新挑戰";
+    restartBtn.id = "restartButton";  // 為按鈕分配一個唯一的 ID
     restartBtn.style.position = 'absolute';
     restartBtn.style.top = canvas.offsetTop + canvas.height / 2 + 'px'; // 修正位置
     restartBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px'; // 修正位置
@@ -343,9 +450,66 @@ function showMessage(message, isWin) {
     document.body.appendChild(restartBtn);
 
     restartBtn.addEventListener('click', function () {
-        document.body.removeChild(restartBtn); // 確保按鈕被移除
         resetGame(); // 重新開始遊戲
     });
+}
+
+// 重置遊戲的函數
+function resetGame() {
+    // 停止任何正在進行的動畫和計時器
+    cancelAnimationFrame(draw); // 停止繪製動畫
+    clearInterval(timerInterval); // 停止計時
+
+    // 確保重新挑戰按鈕被隱藏或移除
+    const restartBtn = document.getElementById('restartButton');
+    if (restartBtn) {
+        restartBtn.remove(); // 移除重新挑戰按鈕
+    }
+
+    // 重置遊戲狀態
+    gameStarted = false;
+    score = 0;
+    timeElapsed = 0;
+    collectedCoins = 0;
+
+    // 重置球的位置和速度
+    x = canvas.width / 2;
+    y = canvas.height - characterHeight - ballRadius - 20;
+    dx = 3 * 0.7 * (Math.random() < 0.5 ? 1 : -1);
+    dy = -3 * 0.7;
+
+    // 重置角色的位置
+    characterX = (canvas.width - characterWidth) / 2;
+
+    // 重置角色圖片和大小
+    characterImage.src = './images/character.png';
+    characterWidth = characterOriginalWidth / 2.5;
+    characterHeight = characterOriginalHeight / 2.5;
+
+    // 重置所有磚塊的狀態
+    for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+            bricks[c][r].status = 1;
+        }
+    }
+
+    // 清空硬幣陣列，重置角色圖片和效果
+    coins = [];
+    characterImage.src = './images/character.png';
+    currentEffect = null;
+    clearTimeout(effectTimeout); // 清除任何未完成的效果超時
+
+    // 重置背景音樂
+    startBackgroundMusic();
+
+    // 設置遊戲狀態為開始並啟動遊戲循環
+    gameStarted = true;
+    timerInterval = setInterval(function () {
+        timeElapsed += 0.01;
+        drawScoreAndTime();
+    }, 10);
+
+    requestAnimationFrame(draw); // 開始遊戲循環
 }
 
 // 主遊戲循環繪製函數
@@ -394,10 +558,11 @@ function draw() {
     }
 
     // 角色移動
+    const characterSpeed = 7 * 0.6; // 將角色移動速度降至60%
     if (rightPressed && characterX < canvas.width - characterWidth) {
-        characterX += 7; // 角色向右移動
+        characterX += characterSpeed; // 角色向右移動
     } else if (leftPressed && characterX > 0) {
-        characterX -= 7; // 角色向左移動
+        characterX -= characterSpeed; // 角色向左移動
     }
 
     requestAnimationFrame(draw); // 繼續遊戲循環
@@ -407,34 +572,6 @@ function gameOver() {
     stopBackgroundMusic(); // 停止背景音樂
     clearInterval(timerInterval); // 停止計時
     showMessage("得罪了！", false); // 顯示遊戲結束訊息
-}
-
-function resetGame() {
-    gameStarted = false; // 重置遊戲狀態為未開始
-    score = 0; // 重置得分
-    timeElapsed = 0; // 重置計時
-    collectedCoins = 0; // 重置收集到的硬幣數
-    x = canvas.width / 2; // 重置球的位置
-    y = canvas.height - characterHeight - ballRadius - 1;
-    dx = 2 * (Math.random() < 0.5 ? 1 : -1); // 重置球的速度
-    dy = -3;
-
-    // 重置所有磚塊的狀態
-    for (let c = 0; c < brickColumnCount; c++) {
-        for (let r = 0; r < brickRowCount; r++) {
-            bricks[c][r].status = 1;
-        }
-    }
-
-    coins = []; // 清空硬幣陣列
-    characterImage.src = './images/character.png'; // 重置角色為原始大小
-
-    gameStarted = true; // 設置遊戲狀態為開始
-    timerInterval = setInterval(function () {
-        timeElapsed += 0.01;
-        drawScoreAndTime();
-    }, 10); // 開始計時
-    draw(); // 開始遊戲循環
 }
 
 function gameWin() {
