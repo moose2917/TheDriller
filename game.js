@@ -48,8 +48,8 @@ let dx = 3 * 0.7 * (Math.random() < 0.5 ? 1 : -1); // 隨機設置水平速度�
 let dy = -3 * 0.7; // 垂直速度向上並降低70%
 
 // 磚塊屬性
-const brickRowCount = 2; // 2行磚塊
-const brickColumnCount = 12; // 每行12個磚塊
+const brickRowCount = 1; // 1行磚塊
+const brickColumnCount = 10; // 每行10個磚塊
 const brickWidth = canvas.width / brickColumnCount; // 每個磚塊的寬度根據列數調整
 const brickHeight = 20;
 const brickOffsetTop = 80; // 磚塊距離頂部的距離
@@ -281,7 +281,7 @@ function updateCoins() {
                 coins[i].x > characterX && coins[i].x < characterX + characterWidth) {
                 coins[i].active = false;
                 if (coins[i].type === 'coin') {
-                    collectedCoins += 1;
+                    collectedCoins -= 1; // 陰德減少1
                     coinCollectSound.play(); // 播放收集硬幣音效
                 } else if (coins[i].type === 'minus' && currentEffect === null) {
                     applyEffect('minus', './images/character_small.png', 100, 100);
@@ -296,13 +296,20 @@ function updateCoins() {
     }
 }
 
-function applyEffect(effectType, imagePath, newWidth, newHeight) {
-    currentEffect = effectType; // 設定當前效果
-    characterImage.src = imagePath; // 切換角色圖像
-    characterWidth = newWidth / 2.5;
-    characterHeight = newHeight / 2.5;
 
-    // 在10秒後恢復原始狀態
+function applyEffect(effectType, imagePath, newWidth, newHeight) {
+    // 无论是否相同效果，取消之前的效果计时
+    clearTimeout(effectTimeout);
+    
+    // 如果效果不同，或者没有当前效果，切换到新的效果
+    if (currentEffect !== effectType) {
+        currentEffect = effectType;
+        characterImage.src = imagePath;
+        characterWidth = newWidth / 2.5;
+        characterHeight = newHeight / 2.5;
+    }
+
+    // 设置效果持续时间为10秒，时间结束后恢复初始状态
     effectTimeout = setTimeout(function () {
         characterImage.src = './images/character.png';
         characterWidth = characterOriginalWidth / 2.5;
@@ -310,6 +317,8 @@ function applyEffect(effectType, imagePath, newWidth, newHeight) {
         currentEffect = null; // 重置效果
     }, 10000);
 }
+
+
 
 // 繪製磚塊
 function drawBricks() {
@@ -325,6 +334,7 @@ function drawBricks() {
         }
     }
 }
+
 
 // 碰撞檢測邏輯
 function collisionDetection() {
@@ -365,20 +375,20 @@ function collisionDetection() {
                             type: 'plus'
                         });
                     }
-
-                    // 檢查是否所有磚塊都已被擊毀
-                    if (bricksRemaining === 1 && c === brickColumnCount - 1 && r === brickRowCount - 1) {
-                        setTimeout(function () {
-                            gameWin();
-                        }, 100);
-                        return true;
-                    }
                 }
             }
         }
     }
 
-    // 檢查球是否撞到牆壁
+    // 檢查是否所有磚塊都已被擊毀
+    if (bricksRemaining === 0) {
+        setTimeout(function () {
+            gameWin(); // 顯示「主委加碼」
+        }, 100);
+        return true;
+    }
+
+    // 檢查球是否撞到牆壁和角色
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx; // 反轉水平方向
     }
@@ -390,7 +400,6 @@ function collisionDetection() {
             let relativeX = x - characterX;
             let offset = (relativeX / characterWidth - 0.5) * 0.25; // 調整影響範圍
 
-            // 降低邊緣加速度的變化幅度
             if (relativeX < characterWidth * 0.25 || relativeX > characterWidth * 0.75) {
                 dx = offset * 4; // 減小邊緣處的速度變化
             } else {
@@ -409,6 +418,7 @@ function collisionDetection() {
     return false;
 }
 
+
 // 繪製分數和時間，並顯示屋頂
 function drawScoreAndTime() {
     ctx.clearRect(0, 0, canvas.width, roofHeight); // 清除屋頂區域
@@ -416,13 +426,14 @@ function drawScoreAndTime() {
     ctx.fillRect(0, 0, canvas.width, roofHeight);
 
     if (gameStarted) {
-        ctx.font = "16px Arial";
+        ctx.font = "16px 'Press Start 2P', cursive"; // 使用像素風格字體
         ctx.fillStyle = "#0095DD";
         ctx.textAlign = "center";
-        ctx.fillText("硬幣: " + collectedCoins, canvas.width / 4, 30);
+        ctx.fillText("陰德: " + collectedCoins, canvas.width / 4, 30);
         ctx.fillText("時間: " + timeElapsed.toFixed(2) + " 秒", (canvas.width / 4) * 3, 30);
     }
 }
+
 
 // 顯示遊戲結束或勝利訊息
 function showMessage(message, isWin) {
