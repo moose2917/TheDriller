@@ -688,7 +688,7 @@ function draw() {
         return; // 如果遊戲勝利，結束繪製
     }
 
-    let addSpeed = Math.min(1 + (timeElapsed.toFixed(2))/100 , 3);
+    let addSpeed = 1
     // let addSpeed = 1;
     x += dx * addSpeed; // 更新球的水平位置
     y += dy * addSpeed; // 更新球的垂直位置
