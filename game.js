@@ -46,8 +46,8 @@ let effectTimeout = null;
 let ballRadius = 10;
 let x = canvas.width / 2; // 將球的初始X位置設為畫布的中間
 let y = canvas.height - characterHeight - ballRadius - 20; // 將球的初始Y位置設為角色上方約20像素的位置
-let dx = 3 * 0.7 * (Math.random() < 0.5 ? 1 : -1); // 隨機設置水平速70%
-let dy = -3 * 0.7; // 垂直速度向上並降低70%
+let dx = 2 * (Math.random() < 0.5 ? 1 : -1); // 隨機設置水平速70%
+let dy = -2; 
 
 // 磚塊屬性
 const brickRowCount = 1; // 1行磚塊
@@ -420,9 +420,9 @@ function collisionDetection() {
             let offset = (relativeX / characterWidth - 0.5) * 0.25; // 調整影響範圍
 
             if (relativeX < characterWidth * 0.25 || relativeX > characterWidth * 0.75) {
-                dx = offset * 4; // 減小邊緣處的速度變化
+                dx = offset * 1; // 減小邊緣處的速度變化
             } else {
-                dx = offset * 8; // 保持中間區域的反應
+                dx = offset * 1; // 保持中間區域的反應
             }
 
             dy = -dy; // 反轉垂直方向
@@ -688,8 +688,10 @@ function draw() {
         return; // 如果遊戲勝利，結束繪製
     }
 
-    x += dx; // 更新球的水平位置
-    y += dy; // 更新球的垂直位置
+    let addSpeed = Math.min(1 + (timeElapsed.toFixed(2))/100 , 3);
+    // let addSpeed = 1;
+    x += dx * addSpeed; // 更新球的水平位置
+    y += dy * addSpeed; // 更新球的垂直位置
 
     // 檢查球是否撞到牆壁
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
