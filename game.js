@@ -48,13 +48,15 @@ let x = canvas.width / 2; // 將球的初始X位置設為畫布的中間
 let y = canvas.height - characterHeight - ballRadius - 20; // 將球的初始Y位置設為角色上方約20像素的位置
 let dx = 2 * (Math.random() < 0.5 ? 1 : -1); // 隨機設置水平速70%
 let dy = -2; 
+let initialSpeed = 2;
+let maxSpeed = 6;
 
 // 磚塊屬性
-const brickRowCount = 1; // 1行磚塊
+const brickRowCount = 2; // 1行磚塊
 const brickColumnCount = 10; // 每行10個磚塊
 const brickWidth = canvas.width / brickColumnCount; // 每個磚塊的寬度根據列數調整
 const brickHeight = 20;
-const brickOffsetTop = 80; // 磚塊距離頂部的距離
+const brickOffsetTop = 100; // 磚塊距離頂部的距離
 
 // 初始化磚塊陣列
 const bricks = [];
@@ -343,7 +345,7 @@ function applyEffect(effectType, imagePath, newWidth, newHeight) {
 // 繪製磚塊
 function drawBricks() {
     for (let r = 0; r < brickRowCount; r++) {
-        for (let c = 0; c < brickColumnCount; c++) {
+        for (let c = 1; c < brickColumnCount-1; c++) {
             if (bricks[c][r].status == 1) {
                 const brickX = c * brickWidth;
                 const brickY = r * brickHeight + brickOffsetTop;
@@ -359,7 +361,7 @@ function drawBricks() {
 // 碰撞檢測邏輯
 function collisionDetection() {
     let bricksRemaining = 0;
-    for (let c = 0; c < brickColumnCount; c++) {
+    for (let c = 1; c < brickColumnCount-1; c++) {
         for (let r = 0; r < brickRowCount; r++) {
             let b = bricks[c][r];
             if (b.status == 1) {
@@ -416,15 +418,7 @@ function collisionDetection() {
     } else if (y > canvas.height - characterHeight - ballRadius) {
         // 檢查球是否撞到角色反擊板）
         if (x > characterX - ballRadius && x < characterX + characterWidth + ballRadius) {
-            let relativeX = x - characterX;
-            let offset = (relativeX / characterWidth - 0.5) * 0.25; // 調整影響範圍
-
-            if (relativeX < characterWidth * 0.25 || relativeX > characterWidth * 0.75) {
-                dx = offset * 1; // 減小邊緣處的速度變化
-            } else {
-                dx = offset * 1; // 保持中間區域的反應
-            }
-
+            dx = 2;
             dy = -dy; // 反轉垂直方向
         } else {
             setTimeout(function () {
@@ -508,6 +502,11 @@ function showFinalScore(isWin) {
         ctx.fillText(playerName + "！你失敗啦！", canvas.width / 2, canvas.height / 2 - 20);
         oogameOverSound.play();
 
+        // 新增業務版位聯繫資訊
+        ctx.fillText("業務版位請洽", canvas.width / 2, canvas.height / 2 +180);
+        ctx.fillText("不是YouTuber的那個藍益銘", canvas.width / 2, canvas.height / 2 +210);
+        ctx.fillText("ivan@strnetwork.cc", canvas.width / 2, canvas.height / 2 +230);
+
         // 顯示重新挑戰按鈕
         const startagainBtn = document.createElement('button');
         startagainBtn.innerText = "再次挑戰";
@@ -522,6 +521,20 @@ function showFinalScore(isWin) {
             startagainBtn.remove(); // 移除重新挑戰按鈕
             requestAnimationFrame(resetGame); // 延遲執行遊戲重置
         });
+        // 新增更多演出資訊按鈕
+        const moreInfoBtn = document.createElement('button');
+        moreInfoBtn.innerText = "更多演出資訊";
+        moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
+        moreInfoBtn.style.position = 'absolute';
+        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 + 120 + 'px';
+        moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px';
+        moreInfoBtn.style.transform = 'translate(-50%, -50%)';
+        document.body.appendChild(moreInfoBtn);
+
+        moreInfoBtn.addEventListener('click', function () {
+            window.open('https://str.network/oP6tD', '_blank'); // 打開指定的頁面連結
+        });
+
     }
 }
 
@@ -550,14 +563,11 @@ function showMessage(message, isWin) {
         "美術、音效設計",
         "強尼",
         "",
-        "排行榜設計",
-        "小馮",
-        "",
         "業務版位請洽",
         "不是YouTuber的那個藍益銘",
         "ivan@strnetwork.cc",
         "",
-        "特別感謝：GPT-4o、Cursor"
+        "特別感謝：小馮、GPT-4o、Cursor"
     ];
 
     ctx.font = "16px Arial";
@@ -613,6 +623,10 @@ function resetGame() {
     // 移除所有可能存在的重新挑戰按鈕
     const startagainBtns = document.querySelectorAll('#startagainButton');
 startagainBtns.forEach(btn => btn.remove());
+
+    // 移除所有可能存在的更多演出資訊
+    const moreInfoBtn = document.querySelectorAll('#moreInfoButton');
+moreInfoBtn.forEach(btn => btn.remove());
 
     const restartBtn = document.getElementById('restartButton');
     if (restartBtn) {
@@ -671,6 +685,22 @@ startagainBtns.forEach(btn => btn.remove());
 
 let animationFrameId;
 
+
+// Function to adjust the ball speed based on elapsed time
+function adjustBallSpeed() {
+    const timeFactor = Math.floor(timeElapsed / 10); // Every 10 seconds
+    const speedIncrease = 0.5 * timeFactor;
+
+    if (initialSpeed + speedIncrease > maxSpeed) {
+        dx = maxSpeed * (dx > 0 ? 1 : -1); // Cap the speed at maxSpeed
+        dy = maxSpeed * (dy > 0 ? 1 : -1);
+    } else {
+        dx = (initialSpeed + speedIncrease) * (dx > 0 ? 1 : -1);
+        dy = (initialSpeed + speedIncrease) * (dy > 0 ? 1 : -1);
+    }
+}
+
+
 // 主遊戲循環繪製函數
 function draw() {
     ctx.clearRect(0, roofHeight, canvas.width, canvas.height - roofHeight); // 清除遊戲區域畫面
@@ -683,15 +713,16 @@ function draw() {
 
     updateCoins(); // 更新硬幣狀態
 
+    adjustBallSpeed();
+
     // 碰撞檢測
     if (collisionDetection()) {
         return; // 如果遊戲勝利，結束繪製
     }
 
-    let addSpeed = 1
     // let addSpeed = 1;
-    x += dx * addSpeed; // 更新球的水平位置
-    y += dy * addSpeed; // 更新球的垂直位置
+    x += dx ; // 更新球的水平位置
+    y += dy ; // 更新球的垂直位置
 
     // 檢查球是否撞到牆壁
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
