@@ -590,10 +590,8 @@ function resetGame() {
     clearInterval(timerInterval); // 停止計時
 
     // 移除所有可能存在的重新挑戰按鈕
-    const startagainBtn = document.getElementById('startagainButton');
-    if (startagainBtn) {
-        startagainBtn.remove();
-    }
+    const startagainBtns = document.querySelectorAll('#startagainButton');
+startagainBtns.forEach(btn => btn.remove());
 
     const restartBtn = document.getElementById('restartButton');
     if (restartBtn) {
