@@ -35,6 +35,8 @@ const characterBigImage = new Image(); // 角色放大圖像
 characterBigImage.src = './images/character_big.png';
 const backgroundImage = new Image();
 backgroundImage.src = './images/background.png';
+const ruleImage = new Image();
+ruleImage.src = './images/硬幣說明.png';
 
 // 紀錄當前的效果
 let currentEffect = null;
@@ -128,6 +130,7 @@ function drawGameElements() {
     drawCharacter(); // 繪製角色
     drawBall(); // 繪製球
     drawScoreAndTime(); // 繪製分數和時間（可選）
+    showRule(); // 顯示規則
 }
 
 // 顯示開始遊戲前的提示訊息
@@ -135,15 +138,11 @@ function showStartMessage() {
     ctx.font = "20px Arial";
     ctx.fillStyle = "#FFFFFF"; // 修改字體顏色為白色
     ctx.textAlign = "center";
-    // 刪除以下三行
-    // ctx.fillText("操作方式", canvas.width / 2, canvas.height / 2 - 60);
-    // ctx.fillText("電腦: 左右鍵", canvas.width / 2, canvas.height / 2 - 30);
-    // ctx.fillText("手機: 移動反擊板", canvas.width / 2, canvas.height / 2);
 
     const startBtn = document.createElement('button');
     startBtn.innerText = "開始遊戲";
     startBtn.style.position = 'absolute';
-    startBtn.style.top = canvas.offsetTop + canvas.height / 2 + 30 + 'px';
+    startBtn.style.top = canvas.offsetTop + canvas.height / 2 + 100 + 'px';
     startBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px';
     startBtn.style.transform = 'translate(-50%, -50%)';
     document.body.appendChild(startBtn);
@@ -244,6 +243,11 @@ function startGameHandler() {
 // 繪製背景
 function drawBackground() {
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+}
+
+// 顯示規則
+function showRule() {
+    ctx.drawImage(ruleImage, 0, 60, canvas.width, canvas.height);
 }
 
 // 繪製角色
