@@ -78,7 +78,7 @@ let timeElapsed = 0; // 已經過的時間
 let timerInterval; // 計時器的間隔
 
 // 音效資源
-let brickHitSound, gameOverSound, gameWinSound, coinCollectSound, backgroundMusic;
+let brickHitSound, gameOverSound, gameWinSound, coinCollectSound, backgroundMusic, oogameOverSound, goodSound, applauseSound, startSound, greatSound, badSound;
 
 // 載入音效資源
 function loadSounds() {
@@ -88,6 +88,12 @@ function loadSounds() {
     coinCollectSound = new Audio('./sounds/coin-collect.mp3');
     backgroundMusic = new Audio('./sounds/background-music.mp3');
     backgroundMusic.loop = true; // 設置背景音樂循環播放
+    greatSound = new Audio('./sounds/你怎麼這麼厲害.mp3');
+    badSound = new Audio('./sounds/得罪了.mp3');
+    applauseSound = new Audio('./sounds/掌聲加尖叫.mp3');
+    startSound = new Audio('./sounds/演出就要開始囉.mp3');
+    oogameOverSound = new Audio('./sounds/歐歐game_over.mp3');
+    goodSound = new Audio('./sounds/優秀唷.mp3');
 }
 
 // 開始播放背景音樂
@@ -100,10 +106,11 @@ function stopBackgroundMusic() {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0; // 重置音樂到開始位置
 }
-
+let playerName;
 // 初始化遊戲，顯示遊戲畫面和提示訊息
-function initializeGame(playerName) {
+function initializeGame(name) {
     // 確保重新挑戰按鈕被隱藏或移除
+    playerName = name;
     const restartBtn = document.getElementById('restartButton');
     if (restartBtn) {
         restartBtn.remove(); // 移除重新挑戰按鈕
@@ -290,6 +297,7 @@ function updateCoins() {
                 if (coins[i].type === 'coin') {
                     collectedCoins += 1; // 薩幣增加1
                     coinCollectSound.play(); // 播放收集硬幣音
+                    badSound.play();
                 } else if (coins[i].type === 'minus') {
                     applyEffect('minus', './images/character_small.png', 100, 100);
                 } else if (coins[i].type === 'plus') {
@@ -464,7 +472,15 @@ function showFinalScore(isWin) {
         ctx.font = "20px Arial";
         ctx.fillStyle = "#FFFFFF";
         ctx.textAlign = "center";
-        ctx.fillText("您的陰德值為：" + negativeScore, canvas.width / 2, canvas.height / 2 - 20);
+        if(negativeScore < -5000){
+            applauseSound.play();
+        }else if(negativeScore < -2000){
+            greatSound.play();
+        }else if(negativeScore < 0){
+            goodSound.play();
+        }
+
+        ctx.fillText(playerName + "！您的陰德值為：" + negativeScore, canvas.width / 2, canvas.height / 2 - 20);
 
         // 顯示確認按鈕
         const confirmBtn = document.createElement('button');
@@ -485,7 +501,8 @@ function showFinalScore(isWin) {
         ctx.font = "20px Arial";
         ctx.fillStyle = "#FFFFFF";
         ctx.textAlign = "center";
-        ctx.fillText("遊戲失敗", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText(playerName + "！你失敗啦！", canvas.width / 2, canvas.height / 2 - 20);
+        oogameOverSound.play();
 
         // 顯示重新挑戰按鈕
         const startagainBtn = document.createElement('button');
