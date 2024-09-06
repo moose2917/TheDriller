@@ -37,6 +37,8 @@ const backgroundImage = new Image();
 backgroundImage.src = './images/background.png';
 const ruleImage = new Image();
 ruleImage.src = './images/硬幣說明.png';
+const endingbackgroundImage = new Image();
+endingbackgroundImage.src = './images/endingbackground.png';
 
 // 紀錄當前的效果
 let currentEffect = null;
@@ -92,6 +94,7 @@ function loadSounds() {
     coinCollectSound = new Audio('./sounds/coin-collect.mp3');
     backgroundMusic = new Audio('./sounds/background-music.mp3');
     backgroundMusic.loop = true; // 設置背景音樂循環播放
+    backgroundMusic.volume = 0.5; // 將音量設置為原來的一半（約-6dB）
     greatSound = new Audio('./sounds/你怎麼這麼厲害.mp3');
     badSound = new Audio('./sounds/得罪了.mp3');
     applauseSound = new Audio('./sounds/掌聲加尖叫.mp3');
@@ -235,7 +238,7 @@ function startGameHandler() {
 
         timerInterval = setInterval(function () {
             timeElapsed += 0.01; // 增加時間
-            drawScoreAndTime(); // 繪製得分和時���
+            drawScoreAndTime(); // 繪製得分和時
         }, 10);
 
         requestAnimationFrame(draw); // 開始遊戲循環
@@ -245,6 +248,11 @@ function startGameHandler() {
 // 繪製背景
 function drawBackground() {
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+}
+
+// 繪製結束動畫
+function drawEndingAnimation() {
+    ctx.drawImage(endingbackgroundImage, 0, 0, canvas.width, canvas.height);
 }
 
 // 顯示規則
@@ -369,26 +377,26 @@ function collisionDetection() {
                 // 檢查球是否撞到磚塊
                 if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
                     dy = -dy; // 反轉球的垂直方向
-                    b.status = 0; // 設置磚塊為被擊中狀態
+                    b.status = 0; // 設磚塊為被擊中狀態
                     brickHitSound.play(); // 播放磚塊被擊中音效
                     drawScoreAndTime(); // 更新分數顯示
 
                     let randomDrop = Math.random();
-                    if (randomDrop < 0.2) { // 20% 機率掉落 coin
+                    if (randomDrop < 0.3) { // 30% 機率掉落 coin
                         coins.push({
                             x: b.x + brickWidth / 2,
                             y: b.y,
                             active: true,
                             type: 'coin'
                         });
-                    } else if (randomDrop < 0.5) { // 30% 機率掉落 minus
+                    } else if (randomDrop < 0.6) { // 30% 機率掉落 minus
                         coins.push({
                             x: b.x + brickWidth / 2,
                             y: b.y,
                             active: true,
                             type: 'minus'
                         });
-                    } else if (randomDrop < 0.8) { // 30% 機率掉落 plus
+                    } else if (randomDrop < 0.8) { // 20% 機率掉落 plus
                         coins.push({
                             x: b.x + brickWidth / 2,
                             y: b.y,
@@ -416,13 +424,32 @@ function collisionDetection() {
     if (y + dy < ballRadius) {
         dy = -dy; // 反轉垂直方向
     } else if (y > canvas.height - characterHeight - ballRadius) {
-        // 檢查球是否撞到角色反擊板）
+        // 檢查球是否撞到角色反擊板
         if (x > characterX - ballRadius && x < characterX + characterWidth + ballRadius) {
-            dx = 2;
-            dy = -dy; // 反轉垂直方向
+            // 計算球撞擊位置相對於角色中心的偏移
+            let hitPosition = (x - characterX) / characterWidth;
+            
+            // 根據撞擊位置調整反彈角度
+            let angle = (hitPosition - 0.5) * Math.PI / 3; // 最大30度角
+            
+            // 設置新的速度向量
+            let speed = Math.sqrt(dx * dx + dy * dy);
+            
+            // 使用 Math.sin 和 Math.cos 來確保中心反彈是垂直的
+            dx = speed * Math.sin(angle);
+            dy = -speed * Math.abs(Math.cos(angle)); // 使用絕對值確保向上運動
+            
+            // 如果接近中心，強制垂直反彈
+            if (Math.abs(hitPosition - 0.5) < 0.1) {
+                dx = 0;
+                dy = -speed;
+            }
+            
+            // 播放反彈音效
+            brickHitSound.play();
         } else {
             setTimeout(function () {
-                gameOver(); // 顯示「罪了！並停止遊戲
+                gameOver(); // 顯示「罪了！」並停止遊戲
             }, 100);
             return;
         }
@@ -461,7 +488,7 @@ function calculateNegativeScore(coins, time) {
 function showFinalScore(isWin) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // 清除畫布
     ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawEndingAnimation();
 
     if (isWin) {
         // 計算負分數
@@ -499,21 +526,22 @@ function showFinalScore(isWin) {
         ctx.font = "20px Arial";
         ctx.fillStyle = "#FFFFFF";
         ctx.textAlign = "center";
-        ctx.fillText(playerName + "！你失敗啦！", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText(playerName + "！你失敗啦！", canvas.width / 2, canvas.height / 2 - 130);
         oogameOverSound.play();
 
         // 新增業務版位聯繫資訊
-        ctx.fillText("業務版位請洽", canvas.width / 2, canvas.height / 2 +180);
-        ctx.fillText("不是YouTuber的那個藍益銘", canvas.width / 2, canvas.height / 2 +210);
-        ctx.fillText("ivan@strnetwork.cc", canvas.width / 2, canvas.height / 2 +230);
+        ctx.font = "18px Arial";  // 將字體大小調小2號
+        ctx.fillText("業務版位出租中", canvas.width / 2, canvas.height / 2+10);
+        ctx.fillText("請洽藍藍", canvas.width / 2, canvas.height / 2 + 30);
+        ctx.fillText("ivan@strnetwork.cc", canvas.width / 2, canvas.height / 2 + 50);
 
         // 顯示重新挑戰按鈕
         const startagainBtn = document.createElement('button');
         startagainBtn.innerText = "再次挑戰";
         startagainBtn.id = "startagainButton";  // 為按鈕分配一個唯一的 ID
         startagainBtn.style.position = 'absolute';
-        startagainBtn.style.top = canvas.offsetTop + canvas.height / 2 + 20 + 'px';
-        startagainBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px';
+        startagainBtn.style.top = canvas.offsetTop + canvas.height / 2 - 80 + 'px';
+        startagainBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px' ;
         startagainBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(startagainBtn);
 
@@ -526,8 +554,8 @@ function showFinalScore(isWin) {
         moreInfoBtn.innerText = "更多演出資訊";
         moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
         moreInfoBtn.style.position = 'absolute';
-        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 + 120 + 'px';
-        moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px';
+        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 - 50 + 'px';
+        moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2  + 'px' ;
         moreInfoBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(moreInfoBtn);
 
@@ -688,8 +716,8 @@ let animationFrameId;
 
 // Function to adjust the ball speed based on elapsed time
 function adjustBallSpeed() {
-    const timeFactor = Math.floor(timeElapsed / 10); // Every 10 seconds
-    const speedIncrease = 0.5 * timeFactor;
+    const timeFactor = Math.floor(timeElapsed / 1); // Every 10 seconds
+    const speedIncrease = 0.08 * timeFactor;
 
     if (initialSpeed + speedIncrease > maxSpeed) {
         dx = maxSpeed * (dx > 0 ? 1 : -1); // Cap the speed at maxSpeed
@@ -701,7 +729,7 @@ function adjustBallSpeed() {
 }
 
 
-// 主遊戲循環繪製函數
+// 主遊循環繪製函數
 function draw() {
     ctx.clearRect(0, roofHeight, canvas.width, canvas.height - roofHeight); // 清除遊戲區域畫面
     drawBackground(); // 繪製背景
@@ -760,21 +788,4 @@ function draw() {
     if (gameStarted) {
         animationFrameId = requestAnimationFrame(draw); // 繼續遊戲循環
     }
-}
-
-// 遊戲結束的函數
-function gameOver() {
-    stopBackgroundMusic(); // 停止背景音樂
-    clearInterval(timerInterval); // 停止計時
-    gameStarted = false; // 停止遊戲循環
-    cancelAnimationFrame(animationFrameId); // 停止動畫幀
-    showFinalScore(false); // 顯示遊戲失敗
-}
-
-// 遊戲勝利的函數
-function gameWin() {
-    stopBackgroundMusic(); // 停止背景音樂
-    clearInterval(timerInterval); // 停止計時
-    gameStarted = false; // 停止遊戲循環
-    showFinalScore(true); // 顯示最終成績
 }
