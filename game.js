@@ -174,7 +174,7 @@ canvas.addEventListener('touchend', touchEndHandler, false);
 // 角色移動函數
 function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
-        rightPressed = true; // 設置右鍵按狀態
+        rightPressed = true; // 設右鍵按狀態
     } else if (e.key == "Left" || e.key == "ArrowLeft") {
         leftPressed = true; // 設置左鍵下狀態
     }
@@ -423,33 +423,36 @@ function collisionDetection() {
     }
     if (y + dy < ballRadius) {
         dy = -dy; // 反轉垂直方向
-    } else if (y > canvas.height - characterHeight - ballRadius) {
-        // 檢查球是否撞到角色反擊板
+    } else if (y + dy > canvas.height - characterHeight - ballRadius) {
+        // 擴大邊緣碰撞檢測範圍
         if (x > characterX - ballRadius && x < characterX + characterWidth + ballRadius) {
-            // 計算球撞擊位置相對於角色中心的偏移
+            // 計算球撞擊位置相對於角色頂端的偏移
             let hitPosition = (x - characterX) / characterWidth;
-            
-            // 根據撞擊位置調整反彈角度
-            let angle = (hitPosition - 0.5) * Math.PI / 3; // 最大30度角
             
             // 設置新的速度向量
             let speed = Math.sqrt(dx * dx + dy * dy);
             
-            // 使用 Math.sin 和 Math.cos 來確保中心反彈是垂直的
-            dx = speed * Math.sin(angle);
-            dy = -speed * Math.abs(Math.cos(angle)); // 使用絕對值確保向上運動
-            
-            // 如果接近中心，強制垂直反彈
-            if (Math.abs(hitPosition - 0.5) < 0.1) {
-                dx = 0;
-                dy = -speed;
+            // 根據撞擊位置調整反彈角度
+            if (hitPosition <= 0.2) {
+                // 最左側，往左斜上方反擊
+                dx = -speed * 0.8;
+                dy = -speed * 0.6;
+            } else if (hitPosition >= 0.8) {
+                // 最右側，往右斜上方反擊
+                dx = speed * 0.8;
+                dy = -speed * 0.6;
+            } else {
+                // 中間部分，根據距離中心的遠近調整角度
+                let angle = (hitPosition - 0.5) * Math.PI * 0.8; // 最大約36度角
+                dx = speed * Math.sin(angle);
+                dy = -speed * Math.cos(angle);
             }
             
             // 播放反彈音效
             brickHitSound.play();
         } else {
             setTimeout(function () {
-                gameOver(); // 顯示「罪了！」並停止遊戲
+                gameOver(); // 顯示「得罪了」並停止遊戲
             }, 100);
             return;
         }
@@ -505,7 +508,7 @@ function showFinalScore(isWin) {
             goodSound.play();
         }
 
-        ctx.fillText(playerName + "！您的陰德值為：" + negativeScore, canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText(playerName + "！您的陰德值為：" + negativeScore, canvas.width / 2, canvas.height / 2 - 130);
 
         // 顯示確認按鈕
         const confirmBtn = document.createElement('button');
@@ -531,16 +534,16 @@ function showFinalScore(isWin) {
 
         // 新增業務版位聯繫資訊
         ctx.font = "18px Arial";  // 將字體大小調小2號
-        ctx.fillText("業務版位出租中", canvas.width / 2, canvas.height / 2+10);
-        ctx.fillText("請洽藍藍", canvas.width / 2, canvas.height / 2 + 30);
-        ctx.fillText("ivan@strnetwork.cc", canvas.width / 2, canvas.height / 2 + 50);
+        ctx.fillText("業務版位出租中", canvas.width / 2, canvas.height / 2 - 10);
+        ctx.fillText("請洽藍藍", canvas.width / 2, canvas.height / 2 + 10);
+        ctx.fillText("ivan@strnetwork.cc", canvas.width / 2, canvas.height / 2 + 30);
 
         // 顯示重新挑戰按鈕
         const startagainBtn = document.createElement('button');
         startagainBtn.innerText = "再次挑戰";
         startagainBtn.id = "startagainButton";  // 為按鈕分配一個唯一的 ID
         startagainBtn.style.position = 'absolute';
-        startagainBtn.style.top = canvas.offsetTop + canvas.height / 2 - 80 + 'px';
+        startagainBtn.style.top = canvas.offsetTop + canvas.height / 2 - 90 + 'px';
         startagainBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px' ;
         startagainBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(startagainBtn);
@@ -554,7 +557,7 @@ function showFinalScore(isWin) {
         moreInfoBtn.innerText = "更多演出資訊";
         moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
         moreInfoBtn.style.position = 'absolute';
-        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 - 50 + 'px';
+        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 - 60 + 'px';
         moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2  + 'px' ;
         moreInfoBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(moreInfoBtn);
@@ -586,7 +589,7 @@ function showMessage(message, isWin) {
         "薩小遊戲組",
         "",
         "程式設計",
-        "游幃傑",
+        "小馮、游幃傑",
         "",
         "美術、音效設計",
         "強尼",
@@ -595,13 +598,13 @@ function showMessage(message, isWin) {
         "不是YouTuber的那個藍益銘",
         "ivan@strnetwork.cc",
         "",
-        "特別感謝：小馮、GPT-4o、Cursor"
+        "特別感謝：GPT-4o、Cursor"
     ];
 
     ctx.font = "16px Arial";
     ctx.fillStyle = "#FFFFFF";
     credits.forEach((line, index) => {
-        ctx.fillText(line, canvas.width / 2, canvas.height / 2 - 180 + index * 20);
+        ctx.fillText(line, canvas.width / 2, canvas.height / 2 - 170 + index * 20);
     });
 
     // 如果已經存在重新挑戰按鈕，先移除
@@ -614,7 +617,7 @@ function showMessage(message, isWin) {
     restartBtn.innerText = "重新挑戰";
     restartBtn.id = "restartButton";  // 為按鈕分配一個唯一的 ID
     restartBtn.style.position = 'absolute';
-    restartBtn.style.top = canvas.offsetTop + canvas.height / 2 + 80 + credits.length * 10 + 'px'; // 修正位置
+    restartBtn.style.top = canvas.offsetTop + canvas.height / 2 + 100 + credits.length * 10 + 'px'; // 修正位置
     restartBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px'; // 修正位置
     restartBtn.style.transform = 'translate(-50%, -50%)';
     document.body.appendChild(restartBtn);
@@ -717,7 +720,7 @@ let animationFrameId;
 // Function to adjust the ball speed based on elapsed time
 function adjustBallSpeed() {
     const timeFactor = Math.floor(timeElapsed / 1); // Every 10 seconds
-    const speedIncrease = 0.08 * timeFactor;
+    const speedIncrease = 0.05 * timeFactor;
 
     if (initialSpeed + speedIncrease > maxSpeed) {
         dx = maxSpeed * (dx > 0 ? 1 : -1); // Cap the speed at maxSpeed
@@ -729,7 +732,7 @@ function adjustBallSpeed() {
 }
 
 
-// 主遊循環繪製函數
+// 主遊戲循環繪製函數
 function draw() {
     ctx.clearRect(0, roofHeight, canvas.width, canvas.height - roofHeight); // 清除遊戲區域畫面
     drawBackground(); // 繪製背景
@@ -758,18 +761,38 @@ function draw() {
     }
     if (y + dy < ballRadius) {
         dy = -dy; // 反轉垂直方向
-    } else if (y > canvas.height - characterHeight) {
-        setTimeout(function () {
-            gameOver(); // 顯示「得罪了」並停止遊戲
-        }, 100);
-        return;
     } else if (y + dy > canvas.height - characterHeight - ballRadius) {
         // 擴大邊緣碰撞檢測範圍
         if (x > characterX - ballRadius && x < characterX + characterWidth + ballRadius) {
-            let relativeX = x - characterX;
-            let offset = relativeX / characterWidth - 0.5;
-            dx = offset * 8; // 根據相對位置改變水平速度
-            dy = -dy; // 反轉垂直方向
+            // 計算球撞擊位置相對於角色頂端的偏移
+            let hitPosition = (x - characterX) / characterWidth;
+            
+            // 設置新的速度向量
+            let speed = Math.sqrt(dx * dx + dy * dy);
+            
+            // 根據撞擊位置調整反彈角度
+            if (hitPosition <= 0.2) {
+                // 最左側，往左斜上方反擊
+                dx = -speed * 0.8;
+                dy = -speed * 0.6;
+            } else if (hitPosition >= 0.8) {
+                // 最右側，往右斜上方反擊
+                dx = speed * 0.8;
+                dy = -speed * 0.6;
+            } else {
+                // 中間部分，根據距離中心的遠近調整角度
+                let angle = (hitPosition - 0.5) * Math.PI * 0.8; // 最大約36度角
+                dx = speed * Math.sin(angle);
+                dy = -speed * Math.cos(angle);
+            }
+            
+            // 播放反彈音效
+            brickHitSound.play();
+        } else {
+            setTimeout(function () {
+                gameOver(); // 顯示「得罪了」並停止遊戲
+            }, 100);
+            return;
         }
     }
 
