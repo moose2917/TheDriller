@@ -54,7 +54,7 @@ let initialSpeed = 2;
 let maxSpeed = 6;
 
 // 磚塊屬性
-const brickRowCount = 2; // 1行磚塊
+const brickRowCount = 2; // 3行磚塊
 const brickColumnCount = 10; // 每行10個磚塊
 const brickWidth = canvas.width / brickColumnCount; // 每個磚塊的寬度根據列數調整
 const brickHeight = 20;
@@ -156,7 +156,6 @@ function showStartMessage() {
     ctx.fillText("若遊戲畫面無法完整顯示", canvas.width / 2, canvas.height / 2 + 200);
     ctx.fillText("請用雙指縮放黑色部分以調整至正常大小", canvas.width / 2, canvas.height / 2 + 220);
 
-    
     startBtn.addEventListener('click', function () {
         startBtn.style.display = 'none'; // 隱藏按鈕
         ctx.clearRect(0, canvas.height / 2 - 80, canvas.width, 160); // 清除提示訊息
@@ -513,14 +512,14 @@ function showFinalScore(isWin) {
             goodSound.play();
         }
 
-        ctx.fillText(playerName + "！您的陰德值為：" + negativeScore, canvas.width / 2, canvas.height / 2 - 130);
+        ctx.fillText(playerName + "！您的陰德值為：" + negativeScore, canvas.width / 2, canvas.height / 2 - 60);
 
         // 顯示確認按鈕
         const confirmBtn = document.createElement('button');
         confirmBtn.innerText = "確定";
         confirmBtn.id = "confirmButton";  // 為按鈕分配一個唯一的 ID
         confirmBtn.style.position = 'absolute';
-        confirmBtn.style.top = canvas.offsetTop + canvas.height / 2 + 20 + 'px';
+        confirmBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
         confirmBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px';
         confirmBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(confirmBtn);
@@ -534,22 +533,22 @@ function showFinalScore(isWin) {
         ctx.font = "20px Arial";
         ctx.fillStyle = "#FFFFFF";
         ctx.textAlign = "center";
-        ctx.fillText(playerName + "！你失敗啦！", canvas.width / 2, canvas.height / 2 - 130);
+        ctx.fillText(playerName + "！你失敗啦！", canvas.width / 2, canvas.height / 2 - 60);
         oogameOverSound.play();
 
         // 新增業務版位聯繫資訊
-        ctx.font = "18px Arial";  // 將字體大小調小2號
-        ctx.fillText("業務版位出租中", canvas.width / 2, canvas.height / 2 - 10);
-        ctx.fillText("請洽藍藍", canvas.width / 2, canvas.height / 2 + 10);
-        ctx.fillText("ivan@strnetwork.cc", canvas.width / 2, canvas.height / 2 + 30);
+        ctx.font = "14px Arial";  // 將字體大小調小2號
+        ctx.fillText("業務版位出租中", canvas.width - 50, canvas.height / 2 + 205);
+        ctx.fillText("請洽藍藍", canvas.width - 30, canvas.height / 2 + 221);
+        ctx.fillText("ivan@strnetwork.cc", canvas.width - 65, canvas.height / 2 + 235);
 
         // 顯示重新挑戰按鈕
         const startagainBtn = document.createElement('button');
         startagainBtn.innerText = "再次挑戰";
         startagainBtn.id = "startagainButton";  // 為按鈕分配一個唯一的 ID
         startagainBtn.style.position = 'absolute';
-        startagainBtn.style.top = canvas.offsetTop + canvas.height / 2 - 90 + 'px';
-        startagainBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px' ;
+        startagainBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
+        startagainBtn.style.left = canvas.offsetLeft + canvas.width / 2 - 80 + 'px' ; // 正式版為canvas.width / 2 - 60
         startagainBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(startagainBtn);
 
@@ -557,18 +556,21 @@ function showFinalScore(isWin) {
             startagainBtn.remove(); // 移除重新挑戰按鈕
             requestAnimationFrame(resetGame); // 延遲執行遊戲重置
         });
+
         // 新增更多演出資訊按鈕
         const moreInfoBtn = document.createElement('button');
-        moreInfoBtn.innerText = "更多演出資訊";
+        // moreInfoBtn.innerText = "更多演出資訊"; 
+        moreInfoBtn.innerText = "觀看更多薩小影片";
         moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
         moreInfoBtn.style.position = 'absolute';
-        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 - 60 + 'px';
-        moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2  + 'px' ;
+        moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
+        moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 60  + 'px' ;
         moreInfoBtn.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(moreInfoBtn);
 
         moreInfoBtn.addEventListener('click', function () {
-            window.open('https://str.network/oP6tD', '_blank'); // 打開指定的頁面連結
+            // window.open('https://str.network/oP6tD', '_blank'); // 打開chatbot的頁面連結
+            window.open('https://content.strnetwork.cc/', '_blank'); // 打開薩自架平台的頁面連結
         });
 
     }
@@ -600,8 +602,7 @@ function showMessage(message, isWin) {
         "強尼",
         "",
         "業務版位請洽",
-        "不是YouTuber的那個藍益銘",
-        "ivan@strnetwork.cc",
+        "藍藍 ivan@strnetwork",
         "",
         "特別感謝：GPT-4o、Cursor"
     ];
@@ -609,7 +610,7 @@ function showMessage(message, isWin) {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#FFFFFF";
     credits.forEach((line, index) => {
-        ctx.fillText(line, canvas.width / 2, canvas.height / 2 - 170 + index * 20);
+        ctx.fillText(line, canvas.width / 2, canvas.height / 2 - 140 + index * 20);
     });
 
     // 如果已經存在重新挑戰按鈕，先移除
@@ -619,11 +620,11 @@ function showMessage(message, isWin) {
     }
 
     const restartBtn = document.createElement('button');
-    restartBtn.innerText = "重新挑戰";
+    restartBtn.innerText = "再次挑戰";
     restartBtn.id = "restartButton";  // 為按鈕分配一個唯一的 ID
     restartBtn.style.position = 'absolute';
-    restartBtn.style.top = canvas.offsetTop + canvas.height / 2 + 100 + credits.length * 10 + 'px'; // 修正位置
-    restartBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 'px'; // 修正位置
+    restartBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
+    restartBtn.style.left = canvas.offsetLeft + canvas.width / 2 - 80 + 'px'; // 修正位置
     restartBtn.style.transform = 'translate(-50%, -50%)';
     document.body.appendChild(restartBtn);
 
@@ -631,6 +632,23 @@ function showMessage(message, isWin) {
         restartBtn.remove(); // 移除重新挑戰按鈕
         resetGame(); // 重開始遊戲
     });
+
+    // 新增更多演出資訊按鈕
+    const moreInfoBtn = document.createElement('button');
+    // moreInfoBtn.innerText = "更多演出資訊"; 
+    moreInfoBtn.innerText = "觀看更多薩小影片";
+    moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
+    moreInfoBtn.style.position = 'absolute';
+    moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
+    moreInfoBtn.style.left = canvas.offsetLeft + canvas.width / 2 + 60  + 'px' ;
+    moreInfoBtn.style.transform = 'translate(-50%, -50%)';
+    document.body.appendChild(moreInfoBtn);
+
+    moreInfoBtn.addEventListener('click', function () {
+        // window.open('https://str.network/oP6tD', '_blank'); // 打開chatbot的頁面連結
+        window.open('https://content.strnetwork.cc/', '_blank'); // 打開薩自架平台的頁面連結
+    });
+
 }
 
 // 遊戲結束的函數
@@ -724,8 +742,8 @@ let animationFrameId;
 
 // Function to adjust the ball speed based on elapsed time
 function adjustBallSpeed() {
-    const timeFactor = Math.floor(timeElapsed / 1); // Every 10 seconds
-    const speedIncrease = 0.05 * timeFactor;
+    const timeFactor = Math.floor(timeElapsed / 5); // Every 10 seconds
+    const speedIncrease = 0.1 * timeFactor;
 
     if (initialSpeed + speedIncrease > maxSpeed) {
         dx = maxSpeed * (dx > 0 ? 1 : -1); // Cap the speed at maxSpeed
