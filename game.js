@@ -152,6 +152,11 @@ function showStartMessage() {
     startBtn.style.transform = 'translate(-50%, -50%)';
     document.body.appendChild(startBtn);
 
+    ctx.font = "12px Arial";
+    ctx.fillText("若遊戲畫面無法完整顯示", canvas.width / 2, canvas.height / 2 + 200);
+    ctx.fillText("請用雙指縮放黑色部分以調整至正常大小", canvas.width / 2, canvas.height / 2 + 220);
+
+    
     startBtn.addEventListener('click', function () {
         startBtn.style.display = 'none'; // 隱藏按鈕
         ctx.clearRect(0, canvas.height / 2 - 80, canvas.width, 160); // 清除提示訊息
