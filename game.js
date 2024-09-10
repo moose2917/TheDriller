@@ -152,7 +152,7 @@ function showStartMessage() {
     startBtn.style.transform = 'translate(-50%, -50%)';
     document.body.appendChild(startBtn);
 
-    ctx.font = "12px Arial";
+    ctx.font = "14px Arial";
     ctx.fillText("若遊戲畫面無法完整顯示", canvas.width / 2, canvas.height / 2 + 200);
     ctx.fillText("請用雙指縮放黑色部分以調整至正常大小", canvas.width / 2, canvas.height / 2 + 220);
 
