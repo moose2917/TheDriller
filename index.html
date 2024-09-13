@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>打磚塊遊戲</title>
     <style>
         body {
@@ -10,10 +10,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* 改为min-height */
             background-color: #000;
             flex-direction: column;
-            padding: 10px; /* 增加內邊距 */
+            padding: 10px;
+            overflow-y: auto; /* 允许垂直滚动 */
         }
         canvas {
             border: 1px solid #fff;
@@ -89,6 +90,19 @@
                 loginPage.classList.add('hidden'); // 隱藏登入頁面
                 gamePage.classList.remove('hidden'); // 顯示遊戲頁面
                 initializeGame(playerName); // 初始化遊戲並顯示提示訊息
+
+                // 重置视口
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+            }
+        });
+
+        // 监听软键盘事件
+        window.addEventListener('resize', function() {
+            if (document.activeElement.tagName === 'INPUT') {
+                window.setTimeout(function() {
+                    document.activeElement.scrollIntoView();
+                }, 0);
             }
         });
     </script>
