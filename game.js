@@ -54,8 +54,8 @@ let initialSpeed = 2;
 let maxSpeed = 6;
 
 // 磚塊屬性
-const brickRowCount = 2; // 3行磚塊
-const brickColumnCount = 10; // 每行10個磚塊
+const brickRowCount = 2; // 2行磚塊
+const brickColumnCount = 10; // 每行10-2個磚塊
 const brickWidth = canvas.width / brickColumnCount; // 每個磚塊的寬度根據列數調整
 const brickHeight = 20;
 const brickOffsetTop = 100; // 磚塊距離頂部的距離
@@ -559,8 +559,8 @@ function showFinalScore(isWin) {
 
         // 新增更多演出資訊按鈕
         const moreInfoBtn = document.createElement('button');
-        // moreInfoBtn.innerText = "更多演出資訊"; 
-        moreInfoBtn.innerText = "觀看更多薩小影片";
+        moreInfoBtn.innerText = "更多演出資訊"; 
+        //moreInfoBtn.innerText = "觀看更多薩小影片";
         moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
         moreInfoBtn.style.position = 'absolute';
         moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
@@ -569,8 +569,8 @@ function showFinalScore(isWin) {
         document.body.appendChild(moreInfoBtn);
 
         moreInfoBtn.addEventListener('click', function () {
-            // window.open('https://str.network/oP6tD', '_blank'); // 打開chatbot的頁面連結
-            window.open('https://content.strnetwork.cc/', '_blank'); // 打開薩自架平台的頁面連結
+            window.open('https://str.network/oP6tD', '_blank'); // 打開chatbot的頁面連結
+            //window.open('https://content.strnetwork.cc/', '_blank'); // 打開薩自架平台的頁面連結
         });
 
     }
@@ -635,8 +635,8 @@ function showMessage(message, isWin) {
 
     // 新增更多演出資訊按鈕
     const moreInfoBtn = document.createElement('button');
-    // moreInfoBtn.innerText = "更多演出資訊"; 
-    moreInfoBtn.innerText = "觀看更多薩小影片";
+    moreInfoBtn.innerText = "更多演出資訊"; 
+    //moreInfoBtn.innerText = "觀看更多薩小影片";
     moreInfoBtn.id = "moreInfoButton";  // 為按鈕分配一個唯一的 ID
     moreInfoBtn.style.position = 'absolute';
     moreInfoBtn.style.top = canvas.offsetTop + canvas.height / 2 + 270 + 'px';
@@ -645,8 +645,8 @@ function showMessage(message, isWin) {
     document.body.appendChild(moreInfoBtn);
 
     moreInfoBtn.addEventListener('click', function () {
-        // window.open('https://str.network/oP6tD', '_blank'); // 打開chatbot的頁面連結
-        window.open('https://content.strnetwork.cc/', '_blank'); // 打開薩自架平台的頁面連結
+        window.open('https://str.network/oP6tD', '_blank'); // 打開chatbot的頁面連結
+        // window.open('https://content.strnetwork.cc/', '_blank'); // 打開薩自架平台的頁面連結
     });
 
 }
