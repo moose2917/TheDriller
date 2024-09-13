@@ -10,11 +10,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* 改为min-height */
+            min-height: 100vh;
             background-color: #000;
             flex-direction: column;
             padding: 10px;
-            overflow-y: auto; /* 允许垂直滚动 */
         }
         canvas {
             border: 1px solid #fff;
@@ -24,24 +23,27 @@
             display: none;
         }
         img {
-            max-width: 90%; /* 調整圖片寬度 */
+            max-width: 90%;
             height: auto;
         }
         h1, p {
             text-align: center;
             color: white;
-            margin: 10px 0; /* 調整文字間距 */
+            margin: 10px 0;
         }
         p.warning {
             color: orangered;
         }
         #playerName {
-            width: 80%; /* 調整輸入框寬度 */
-            padding: 10px; /* 增加內邊距 */
-            margin-bottom: 10px; /* 增加下邊距 */
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px; /* 设置合适的字体大小 */
+            -webkit-text-size-adjust: 100%; /* 禁用 iOS 的文本大小调整 */
         }
         #submitBtn {
-            padding: 10px 20px; /* 增加按鈕內邊距 */
+            padding: 10px 20px;
+            font-size: 16px; /* 设置合适的字体大小 */
         }
     </style>
     <!-- 預加載音效文件 -->
@@ -59,11 +61,11 @@
 <body>
     <!-- 登入頁面 -->
     <div id="loginPage">
-        <img src="images/豪平鑽磚頭封面.png" alt="豪平鑽磚頭封面">
-        <h1>薩小遊戲 - 黃豪平鑽磚頭</h1> <!-- 新增標題 -->
-        <p>遊戲目標<br>累積薩幣並以最快的時間通關，挑戰最低陰德值</p> <!-- 新增遊玩目標說明 -->
-        <p>遊玩方式<br>移動角色反擊鑽頭以破壞所有磚頭</p> <!-- 新增遊玩方式說明 -->
-        <p class="warning">建議打開手機音量遊玩遊戲<br>進入遊戲畫面後，以兩指縮放黑色區域調整畫面至正常大小</p> <!-- 建議打開聲音 -->
+        <img src="images/豪平鑽磚頭封面.png" alt="豪平鑽磚頭封面" style="display: block; margin: 0 auto; max-width: 100%;">
+        <h1 style="text-align: center; color: white;">薩小遊戲 - 黃豪平鑽磚頭</h1> <!-- 新增標題 -->
+        <p style="text-align: center; color: white;">遊戲目標<br>累積薩幣並以最快的時間通關，挑戰最低陰德值</p> <!-- 新增遊玩目標說明 -->
+        <p style="text-align: center; color: white;">遊玩方式<br>移動角色反擊鑽頭以破壞所有磚頭</p> <!-- 新增遊玩方式說明 -->
+        <p style="text-align: center; color: orangered;">建議打開手機音量遊玩遊戲<br>進入遊戲畫面後，以兩指縮放黑色區域調整畫面至正常大小</p> <!-- 建議打開聲音 -->
         <div style="text-align: center;">
             <input type="text" id="playerName" placeholder="請輸入您的姓名" required inputmode="text" pattern="[a-zA-Z0-9]*">
             <button id="submitBtn">提交</button>
@@ -90,19 +92,6 @@
                 loginPage.classList.add('hidden'); // 隱藏登入頁面
                 gamePage.classList.remove('hidden'); // 顯示遊戲頁面
                 initializeGame(playerName); // 初始化遊戲並顯示提示訊息
-
-                // 重置视口
-                window.scrollTo(0, 0);
-                document.body.scrollTop = 0;
-            }
-        });
-
-        // 监听软键盘事件
-        window.addEventListener('resize', function() {
-            if (document.activeElement.tagName === 'INPUT') {
-                window.setTimeout(function() {
-                    document.activeElement.scrollIntoView();
-                }, 0);
             }
         });
     </script>
