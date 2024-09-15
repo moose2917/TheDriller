@@ -742,7 +742,7 @@ let animationFrameId;
 
 // Function to adjust the ball speed based on elapsed time
 function adjustBallSpeed() {
-    const timeFactor = Math.floor(timeElapsed / 1); // Every 10 seconds
+    const timeFactor = Math.floor(timeElapsed / 3); // Every 10 seconds
     const speedIncrease = 0.15 * timeFactor;
 
     if (initialSpeed + speedIncrease > maxSpeed) {
