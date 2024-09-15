@@ -50,7 +50,7 @@ let x = canvas.width / 2; // 將球的初始X位置設為畫布的中間
 let y = canvas.height - characterHeight - ballRadius - 20; // 將球的初始Y位置設為角色上方約20像素的位置
 let dx = 2 * (Math.random() < 0.5 ? 1 : -1); // 隨機設置水平速70%
 let dy = -2; 
-let initialSpeed = 2;
+let initialSpeed = 1;
 let maxSpeed = 6;
 
 // 磚塊屬性
