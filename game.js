@@ -152,9 +152,9 @@ function showStartMessage() {
     startBtn.style.transform = 'translate(-50%, -50%)';
     document.body.appendChild(startBtn);
 
-    ctx.font = "14px Arial";
-    ctx.fillText("若遊戲畫面無法完整顯示", canvas.width / 2, canvas.height / 2 + 200);
-    ctx.fillText("請用雙指縮放黑色部分以調整至正常大小", canvas.width / 2, canvas.height / 2 + 220);
+    // ctx.font = "14px Arial";
+    // ctx.fillText("若遊戲畫面無法完整顯示", canvas.width / 2, canvas.height / 2 + 200);
+    // ctx.fillText("請用雙指縮放黑色部分以調整至正常大小", canvas.width / 2, canvas.height / 2 + 220);
 
     startBtn.addEventListener('click', function () {
         startBtn.style.display = 'none'; // 隱藏按鈕
@@ -742,8 +742,8 @@ let animationFrameId;
 
 // Function to adjust the ball speed based on elapsed time
 function adjustBallSpeed() {
-    const timeFactor = Math.floor(timeElapsed / 5); // Every 10 seconds
-    const speedIncrease = 0.1 * timeFactor;
+    const timeFactor = Math.floor(timeElapsed / 1); // Every 10 seconds
+    const speedIncrease = 0.3 * timeFactor;
 
     if (initialSpeed + speedIncrease > maxSpeed) {
         dx = maxSpeed * (dx > 0 ? 1 : -1); // Cap the speed at maxSpeed
