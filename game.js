@@ -504,9 +504,9 @@ function showFinalScore(isWin) {
         ctx.font = "20px Arial";
         ctx.fillStyle = "#FFFFFF";
         ctx.textAlign = "center";
-        if(negativeScore < -5000){
+        if(negativeScore < -10000){
             applauseSound.play();
-        }else if(negativeScore < -2000){
+        }else if(negativeScore < -5000){
             greatSound.play();
         }else if(negativeScore < 0){
             goodSound.play();
